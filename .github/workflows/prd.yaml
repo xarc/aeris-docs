@@ -1,0 +1,30 @@
+name: AERIS-DOCS PROD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      - run: npm run build
+
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: prod
+          folder: dist
+          token: ${{ secrets.GITHUB_TOKEN }}
