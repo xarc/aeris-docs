@@ -3,7 +3,7 @@ import starlight from "@astrojs/starlight";
 import remarkMermaid from "remark-mermaidjs";
 
 export default defineConfig({
-  site: "https://edusrc.github.io/aeris-docs/",
+  site: "https://xarc.github.io/aeris-docs/",
   base: "/aeris-docs/",
   trailingSlash: "always",
 
@@ -27,7 +27,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/edusrc/aeris",
+          href: "https://github.com/xarc/aeris",
         },
       ],
 
