@@ -1,0 +1,63 @@
+---
+interface Exercise {
+  title: string;
+  href: string;
+  description?: string;
+}
+
+interface Props {
+  exercises: Exercise[];
+}
+
+const { exercises } = Astro.props;
+---
+
+<ul class="exercise-list">
+  {exercises.map((exercise) => (
+    <li>
+      <a href={exercise.href}>
+        <span class="arrow">➤</span>
+        <span class="exercise-title">{exercise.title}</span>
+      </a>
+      {exercise.description && (
+        <p class="exercise-description">{exercise.description}</p>
+      )}
+    </li>
+  ))}
+</ul>
+
+<style>
+  .exercise-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 1.5rem;
+  }
+
+  .exercise-list li {
+    margin-bottom: 0.75rem;
+  }
+
+  .exercise-list a {
+    text-decoration: none;
+    font-weight: bold;
+    color: var(--sl-color-accent, #e35c1f);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: opacity 0.2s;
+  }
+
+  .exercise-list a:hover {
+    opacity: 0.75;
+  }
+
+  .arrow {
+    font-size: 0.9em;
+  }
+
+  .exercise-description {
+    margin: 0.2rem 0 0 1.4rem;
+    font-size: 0.9em;
+    color: var(--sl-color-gray-2, #555);
+  }
+</style>

@@ -1,0 +1,50 @@
+---
+title: Exercício 1
+description: Traduzir a expressão f = (g + h) - (i + j) para Assembly RISC-V.
+---
+
+import RiscVExercise from '../../../../components/RiscVExercise.astro';
+
+Baseado em Patterson & Hennessy, páginas 54–56. Percorra o programa abaixo instrução por instrução e preencha a tabela, registrando o valor do PC, a instrução executada e o valor dos registradores modificados após cada instrução.
+
+<RiscVExercise
+  code={`# C expression: f = (g + h) - (i + j)
+
+.text
+
+main:
+    addi t1, zero, 4      # g = 4
+    addi t2, zero, 3      # h = 3
+    addi t3, zero, 2      # i = 2
+    addi t4, zero, 1      # j = 1
+
+    add  t5, t1, t2       # t5 = g + h
+    add  t6, t3, t4       # t6 = i + j
+    sub  t0, t5, t6       # f = t5 - t6 (result in t0)`}
+  registers={[
+    { name: "R5",  alias: "t0" },
+    { name: "R6",  alias: "t1" },
+    { name: "R7",  alias: "t2" },
+    { name: "R28", alias: "t3" },
+    { name: "R29", alias: "t4" },
+    { name: "R30", alias: "t5" },
+    { name: "R31", alias: "t6" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi t1 zero 4",
+      values: ["0x00000000", "0x00000004", "0x00000000", "0x00000000", "0x00000000", "0x00000000", "0x00000000"],
+    },
+  ]}
+  totalRows={6}
+/>

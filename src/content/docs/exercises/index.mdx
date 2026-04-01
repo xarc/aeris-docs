@@ -1,0 +1,30 @@
+---
+title: Exercises
+description: Practical RISC-V assembly exercises to reinforce your understanding of the simulator.
+---
+
+import ExerciseList from '../../../components/ExerciseList.astro';
+
+A collection of exercises for practicing RISC-V assembly, from simple arithmetic to more complex programs.
+
+## How it works
+
+Each exercise presents an assembly program to be traced instruction by instruction. For each step:
+
+1. Look at the next instruction to be executed and write it in the table along with its PC address
+2. Run that instruction in the simulator
+3. Check which register was modified and record its new value in the corresponding column
+
+Repeat until the program ends
+
+After completing an exercise, use the **Save as PDF** button to export and keep your answers
+
+<ExerciseList
+  exercises={[
+    {
+      title: "Exercise 1",
+      href: "/aeris-docs/exercises/exercise-1/",
+      description: "Arithmetic operations using addi, add and sub instructions.",
+    },
+  ]}
+/>

@@ -142,6 +142,25 @@ export default defineConfig({
           ],
         },
 
+        {
+          label: "Exercises",
+          translations: {
+            "pt-BR": "Exercícios",
+          },
+          items: [
+            {
+              label: "Overview",
+              translations: { "pt-BR": "Visão Geral" },
+              link: "/exercises/",
+            },
+            {
+              label: "Exercise 1",
+              translations: { "pt-BR": "Exercício 1" },
+              link: "/exercises/exercise-1/",
+            },
+          ],
+        },
+
         // {
         //   label: "Articles",
         //   translations: {

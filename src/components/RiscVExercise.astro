@@ -1,0 +1,257 @@
+---
+export interface Register {
+  name: string;
+  alias: string;
+}
+
+export interface PrefilledRow {
+  pc: string;
+  instruction: string;
+  values: string[];
+}
+
+interface Props {
+  title?: string;
+  description?: string;
+  code?: string;
+  registers: Register[];
+  initialValues?: string[];
+  prefilledRows?: PrefilledRow[];
+  totalRows?: number;
+  lang?: 'pt' | 'en';
+}
+
+const {
+  title,
+  description,
+  code,
+  registers,
+  initialValues,
+  prefilledRows = [],
+  totalRows = 7,
+  lang = 'pt',
+} = Astro.props;
+
+const labels = {
+  pt: {
+    title: 'Exercício',
+    assemblyCode: 'Código Assembly',
+    fillTable: 'Preencha a tabela abaixo',
+    before: 'Antes',
+    after: 'Após executar a instrução',
+    savePDF: 'Salvar como PDF',
+  },
+  en: {
+    title: 'Exercise',
+    assemblyCode: 'Assembly Code',
+    fillTable: 'Fill in the table below',
+    before: 'Before',
+    after: 'After executing the instruction',
+    savePDF: 'Save as PDF',
+  },
+};
+
+const t = labels[lang];
+const resolvedTitle = title ?? t.title;
+const registerCount = registers.length;
+---
+
+<div class="exercise">
+  {resolvedTitle && <h2 class="exercise-title">{resolvedTitle}</h2>}
+  {description && <p class="exercise-description" set:html={description} />}
+
+  {
+    code && (
+      <div class="code-wrapper">
+        <h3>{t.assemblyCode}</h3>
+        <code class="assembly-code">{code}</code>
+      </div>
+    )
+  }
+
+  <h3>{t.fillTable}</h3>
+
+  <form class="exercise-form">
+    <div class="table-wrapper">
+      <table class="exec-table">
+        <thead>
+          <tr>
+            <th class="col-before" colspan="2">{t.before}</th>
+            <th class="col-after" colspan={registerCount}>{t.after}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-header">PC</td>
+            <td class="col-header">Instruction</td>
+            {registers.map((register) => <td class="col-header">{register.name}</td>)}
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            {registers.map((register) => <td class="col-alias">({register.alias})</td>)}
+          </tr>
+          {
+            initialValues && (
+              <tr>
+                <td></td>
+                <td></td>
+                {initialValues.map((value) => (
+                  <td class="col-initial">{value}</td>
+                ))}
+              </tr>
+            )
+          }
+          {
+            prefilledRows.map((row) => (
+              <tr>
+                <td class="col-filled">{row.pc}</td>
+                <td class="col-filled">{row.instruction}</td>
+                {row.values.map((value) => (
+                  <td class="col-filled">{value}</td>
+                ))}
+              </tr>
+            ))
+          }
+          {
+            Array.from({ length: totalRows }).map(() => (
+              <tr>
+                <td><input type="text" /></td>
+                <td><input type="text" /></td>
+                {Array.from({ length: registerCount }).map(() => (
+                  <td><input type="text" /></td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <button type="button" class="btn-print" onclick="window.print()">
+      {t.savePDF}
+    </button>
+  </form>
+</div>
+
+<style>
+  .exercise {
+    font-family: Arial, sans-serif;
+  }
+
+  .exercise-title {
+    color: var(--sl-color-accent, #e35c1f);
+  }
+
+  .code-wrapper h3 {
+    margin-bottom: 0.5rem;
+  }
+
+  .assembly-code {
+    background-color: var(--sl-color-gray-6, #f0f0f0);
+    color: var(--sl-color-text, #000);
+    padding: 12px;
+    display: block;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 14px;
+    margin-bottom: 1.5rem;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+
+  .exec-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    min-width: 700px;
+  }
+
+  .exec-table td,
+  .exec-table th {
+    border: 1px solid var(--sl-color-gray-4, #999);
+    font-size: 14px;
+    padding: 8px 6px;
+    text-align: center;
+    vertical-align: top;
+    word-break: normal;
+  }
+
+  .col-before,
+  .col-after {
+    font-weight: bold;
+    background-color: var(--sl-color-gray-6, #f5f5f5);
+  }
+
+  .col-header {
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .col-alias {
+    font-weight: bold;
+    font-style: italic;
+    color: var(--sl-color-gray-2, #555);
+  }
+
+  .col-initial {
+    font-weight: bold;
+    color: var(--sl-color-gray-2, #555);
+  }
+
+  .col-filled {
+    font-weight: bold;
+    font-family: monospace;
+  }
+
+  .exec-table input[type="text"] {
+    width: 100%;
+    border: none;
+    text-align: center;
+    background: transparent;
+    font-family: monospace;
+    font-size: 13px;
+    color: inherit;
+    padding: 2px;
+    outline: none;
+  }
+
+  .exec-table input[type="text"]:focus {
+    background-color: var(--sl-color-accent-low, #fff3e8);
+    border-radius: 3px;
+  }
+
+  .btn-print {
+    background-color: var(--sl-color-accent, #e35c1f);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-print:hover {
+    opacity: 0.85;
+  }
+
+  @media print {
+    .btn-print {
+      display: none;
+    }
+
+    .exercise {
+      font-size: 12px;
+    }
+
+    .exec-table td,
+    .exec-table th {
+      padding: 5px 4px;
+    }
+  }
+</style>

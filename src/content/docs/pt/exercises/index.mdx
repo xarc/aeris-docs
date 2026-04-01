@@ -1,0 +1,30 @@
+---
+title: Exercícios
+description: Exercícios práticos de Assembly RISC-V para fixar o uso do simulador.
+---
+
+import ExerciseList from '../../../../components/ExerciseList.astro';
+
+Uma coleção de exercícios para praticar Assembly RISC-V, desde aritmética simples até programas mais complexos.
+
+## Como funciona
+
+Cada exercício apresenta um programa assembly para ser rastreado instrução por instrução. Para cada etapa:
+
+1. Identifique a próxima instrução a ser executada e escreva-a na tabela junto com o endereço do PC
+2. Execute essa instrução no simulador
+3. Verifique qual registrador foi modificado e registre seu novo valor na coluna correspondente
+
+Repita até o fim do programa
+
+Ao finalizar, use o botão **Salvar como PDF** para exportar e guardar as respostas
+
+<ExerciseList
+  exercises={[
+    {
+      title: "Exercício 1",
+      href: "/aeris-docs/pt/exercises/exercise-1/",
+      description: "Operações aritméticas com as instruções addi, add e sub.",
+    },
+  ]}
+/>
