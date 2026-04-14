@@ -13,17 +13,19 @@ const { exercises } = Astro.props;
 ---
 
 <ul class="exercise-list">
-  {exercises.map((exercise) => (
-    <li>
-      <a href={exercise.href}>
-        <span class="arrow">➤</span>
-        <span class="exercise-title">{exercise.title}</span>
-      </a>
-      {exercise.description && (
-        <p class="exercise-description">{exercise.description}</p>
-      )}
-    </li>
-  ))}
+  {
+    exercises.map((exercise) => (
+      <li>
+        <a href={exercise.href}>
+          <span class="arrow">➤</span>
+          <span class="exercise-title">{exercise.title}</span>
+        </a>
+        {exercise.description && (
+          <p class="exercise-description">{exercise.description}</p>
+        )}
+      </li>
+    ))
+  }
 </ul>
 
 <style>

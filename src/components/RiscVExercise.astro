@@ -4,100 +4,156 @@ export interface Register {
   alias: string;
 }
 
+export interface MemorySegment {
+  address: string;
+  alias: string;
+}
+
 export interface PrefilledRow {
   pc: string;
   instruction: string;
+  pseudoInstruction?: string;
   values: string[];
 }
 
 interface Props {
-  title?: string;
   description?: string;
   code?: string;
   registers: Register[];
+  memorySegments?: MemorySegment[];
+  pseudoInstructionColumn?: boolean;
   initialValues?: string[];
   prefilledRows?: PrefilledRow[];
   totalRows?: number;
-  lang?: 'pt' | 'en';
+  lang?: "pt" | "en";
+  compact?: boolean;
 }
 
 const {
-  title,
   description,
   code,
   registers,
+  memorySegments = [],
+  pseudoInstructionColumn = false,
   initialValues,
   prefilledRows = [],
   totalRows = 7,
-  lang = 'pt',
+  lang = "pt",
+  compact = false,
 } = Astro.props;
 
-const labels = {
+const translations = {
   pt: {
-    title: 'Exercício',
-    assemblyCode: 'Código Assembly',
-    fillTable: 'Preencha a tabela abaixo',
-    before: 'Antes',
-    after: 'Após executar a instrução',
-    savePDF: 'Salvar como PDF',
+    assemblyCode: "Código Assembly",
+    fillTable: "Preencha a tabela abaixo",
+    before: "Antes",
+    after: "Após executar a instrução",
+    pseudoInstruction: "Pseudoinstrução",
+    addRow: "Adicionar linha",
+    savePDF: "Salvar como PDF",
+    pdfNotice:
+      "Dica: no diálogo de impressão, selecione o tamanho A2 para melhor resultado.",
   },
   en: {
-    title: 'Exercise',
-    assemblyCode: 'Assembly Code',
-    fillTable: 'Fill in the table below',
-    before: 'Before',
-    after: 'After executing the instruction',
-    savePDF: 'Save as PDF',
+    assemblyCode: "Assembly Code",
+    fillTable: "Fill in the table below",
+    before: "Before",
+    after: "After executing the instruction",
+    pseudoInstruction: "Pseudo-instruction",
+    addRow: "Add row",
+    savePDF: "Save as PDF",
+    pdfNotice:
+      "Tip: in the print dialog, select A2 paper size for best results.",
   },
 };
 
-const t = labels[lang];
-const resolvedTitle = title ?? t.title;
+const labels = translations[lang];
 const registerCount = registers.length;
+const beforeColspan = pseudoInstructionColumn ? 3 : 2;
+const afterColspan = registerCount + memorySegments.length * 2;
+const tableClass = compact ? "exec-table compact" : "exec-table";
 ---
 
 <div class="exercise">
-  {resolvedTitle && <h2 class="exercise-title">{resolvedTitle}</h2>}
   {description && <p class="exercise-description" set:html={description} />}
 
   {
     code && (
       <div class="code-wrapper">
-        <h3>{t.assemblyCode}</h3>
+        <h3>{labels.assemblyCode}</h3>
         <code class="assembly-code">{code}</code>
       </div>
     )
   }
 
-  <h3>{t.fillTable}</h3>
+  <h3>{labels.fillTable}</h3>
 
   <form class="exercise-form">
     <div class="table-wrapper">
-      <table class="exec-table">
+      <table class={tableClass}>
         <thead>
           <tr>
-            <th class="col-before" colspan="2">{t.before}</th>
-            <th class="col-after" colspan={registerCount}>{t.after}</th>
+            <th class="col-before" colspan={beforeColspan}>{labels.before}</th>
+            <th class="col-after" colspan={afterColspan}>{labels.after}</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td class="col-header">PC</td>
             <td class="col-header">Instruction</td>
-            {registers.map((register) => <td class="col-header">{register.name}</td>)}
+            {
+              pseudoInstructionColumn && (
+                <td class="col-header">{labels.pseudoInstruction}</td>
+              )
+            }
+            {
+              registers.map((register) => (
+                <td class="col-header">{register.name}</td>
+              ))
+            }
+            {
+              memorySegments.map((segment) => (
+                <>
+                  <td class="col-header">{segment.address}</td>
+                  <td class="col-header">...</td>
+                </>
+              ))
+            }
           </tr>
           <tr>
             <td></td>
             <td></td>
-            {registers.map((register) => <td class="col-alias">({register.alias})</td>)}
+            {pseudoInstructionColumn && <td />}
+            {
+              registers.map((register) => (
+                <td class="col-alias">({register.alias})</td>
+              ))
+            }
+            {
+              memorySegments.map((segment) => (
+                <>
+                  <td class="col-alias">{segment.alias}</td>
+                  <td />
+                </>
+              ))
+            }
           </tr>
           {
             initialValues && (
               <tr>
-                <td></td>
-                <td></td>
-                {initialValues.map((value) => (
+                <td />
+                <td />
+                {pseudoInstructionColumn && <td />}
+                {initialValues.slice(0, registerCount).map((value) => (
                   <td class="col-initial">{value}</td>
+                ))}
+                {memorySegments.map((segmentment, index) => (
+                  <>
+                    <td class="col-initial">
+                      {initialValues[registerCount + index] ?? ""}
+                    </td>
+                    <td />
+                  </>
                 ))}
               </tr>
             )
@@ -107,8 +163,19 @@ const registerCount = registers.length;
               <tr>
                 <td class="col-filled">{row.pc}</td>
                 <td class="col-filled">{row.instruction}</td>
-                {row.values.map((value) => (
+                {pseudoInstructionColumn && (
+                  <td class="col-filled">{row.pseudoInstruction ?? ""}</td>
+                )}
+                {row.values.slice(0, registerCount).map((value) => (
                   <td class="col-filled">{value}</td>
+                ))}
+                {memorySegments.map((segmentment, index) => (
+                  <>
+                    <td class="col-filled">
+                      {row.values[registerCount + index] ?? ""}
+                    </td>
+                    <td />
+                  </>
                 ))}
               </tr>
             ))
@@ -116,10 +183,29 @@ const registerCount = registers.length;
           {
             Array.from({ length: totalRows }).map(() => (
               <tr>
-                <td><input type="text" /></td>
-                <td><input type="text" /></td>
+                <td>
+                  <input type="text" />
+                </td>
+                <td>
+                  <input type="text" />
+                </td>
+                {pseudoInstructionColumn && (
+                  <td>
+                    <input type="text" />
+                  </td>
+                )}
                 {Array.from({ length: registerCount }).map(() => (
-                  <td><input type="text" /></td>
+                  <td>
+                    <input type="text" />
+                  </td>
+                ))}
+                {memorySegments.map(() => (
+                  <>
+                    <td>
+                      <input type="text" />
+                    </td>
+                    <td />
+                  </>
                 ))}
               </tr>
             ))
@@ -128,19 +214,38 @@ const registerCount = registers.length;
       </table>
     </div>
 
-    <button type="button" class="btn-print" onclick="window.print()">
-      {t.savePDF}
-    </button>
+    <div class="bottom-row">
+      <p class="pdf-notice">{labels.pdfNotice}</p>
+      <div class="btn-row">
+        <button type="button" class="btn-add-row">{labels.addRow}</button>
+        <button type="button" class="btn-print" onclick="window.print()"
+          >{labels.savePDF}</button
+        >
+      </div>
+    </div>
   </form>
 </div>
+
+<script>
+  document.querySelectorAll(".btn-add-row").forEach((button) => {
+    button.addEventListener("click", () => {
+      const tbody = button.closest("form")?.querySelector("tbody");
+      const lastInputRow = Array.from(tbody?.querySelectorAll("tr") ?? [])
+        .reverse()
+        .find((row) => row.querySelector("input"));
+
+      const newRow = lastInputRow?.cloneNode(true) as HTMLElement | undefined;
+      newRow
+        ?.querySelectorAll("input")
+        .forEach((input) => ((input as HTMLInputElement).value = ""));
+      tbody?.appendChild(newRow!);
+    });
+  });
+</script>
 
 <style>
   .exercise {
     font-family: Arial, sans-serif;
-  }
-
-  .exercise-title {
-    color: var(--sl-color-accent, #e35c1f);
   }
 
   .code-wrapper h3 {
@@ -179,6 +284,16 @@ const registerCount = registers.length;
     text-align: center;
     vertical-align: top;
     word-break: normal;
+  }
+
+  .exec-table.compact td,
+  .exec-table.compact th {
+    font-size: 11px;
+    padding: 4px 3px;
+  }
+
+  .exec-table.compact input[type="text"] {
+    font-size: 11px;
   }
 
   .col-before,
@@ -225,14 +340,56 @@ const registerCount = registers.length;
     border-radius: 3px;
   }
 
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .pdf-notice {
+    font-size: 13px;
+    color: var(--sl-color-gray-2, #555);
+    margin: 0;
+    flex: 1;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    align-items: stretch;
+    margin-top: 0;
+  }
+
+  .btn-add-row,
   .btn-print {
-    background-color: var(--sl-color-accent, #e35c1f);
-    color: white;
-    border: none;
-    padding: 10px 24px;
+    margin: 0;
+    padding: 0 24px;
     border-radius: 6px;
     font-size: 15px;
     cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-add-row {
+    background-color: transparent;
+    color: var(--sl-color-accent, #e35c1f);
+    border: 1.5px solid var(--sl-color-accent, #e35c1f);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .btn-add-row:hover {
+    background-color: var(--sl-color-accent, #e35c1f);
+    color: white;
+  }
+
+  .btn-print {
+    background-color: var(--sl-color-accent, #e35c1f);
+    color: white;
+    border: 1.5px solid var(--sl-color-accent, #e35c1f);
     transition: opacity 0.2s;
   }
 
@@ -241,7 +398,12 @@ const registerCount = registers.length;
   }
 
   @media print {
-    .btn-print {
+    @page {
+      size: A2 landscape;
+      margin: 1cm;
+    }
+
+    .bottom-row {
       display: none;
     }
 

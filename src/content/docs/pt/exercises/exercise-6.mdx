@@ -1,0 +1,66 @@
+---
+title: Exercício 6
+description: Consolidar o uso de laços for em Assembly RISC-V usando slti e beq.
+---
+
+import RiscVExercise from '../../../../components/RiscVExercise.astro';
+
+## Objetivo
+
+Consolidar o aprendizado da linguagem Assembly RISC-V e compreender como as instruções de desvio condicional são executadas dentro de um laço. O seguinte laço `for` em C é traduzido para assembly usando `slti` e `beq`:
+
+```c
+for (i = 0; i < 3; i++)
+    j++;
+```
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V.
+2. No editor de texto do simulador, transcreva o código abaixo:
+
+```asm
+# Exercício 06
+# C expression: for (i = 0; i < 3; i++) j++;
+
+    .text
+main:
+    addi s0, zero, 0     # i = 0
+
+Loop:
+    slti t0, s0, 3       # se i < 3 então t0 = 1, senão t0 = 0
+    beq  t0, zero, Exit  # se t0 == 0, pula para Exit
+    addi s1, s1, 1       # j++
+    addi s0, s0, 1       # i++
+    j    Loop            # volta para o início do laço
+
+Exit:
+    nop                  # fim do programa
+```
+
+## Execução Passo a Passo
+
+Execute o programa passo a passo clicando no botão **Run One Step**. A cada instrução, preencha a tabela abaixo cada vez que o valor de um registrador for modificado.
+
+<RiscVExercise
+  lang="pt"
+  registers={[
+    { name: "R5", alias: "t0" },
+    { name: "R8", alias: "s0 (i)" },
+    { name: "R9", alias: "s1 (j)" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s0 zero 0",
+      values: ["", "0x00000000", ""],
+    },
+  ]}
+  totalRows={8}
+/>
+

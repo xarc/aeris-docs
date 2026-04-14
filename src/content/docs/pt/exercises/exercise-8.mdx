@@ -1,0 +1,108 @@
+---
+title: Exercício 8
+description: Consolidar o uso da pilha para salvar e restaurar registradores em chamadas de procedimento RISC-V.
+---
+
+import RiscVExercise from '../../../../components/RiscVExercise.astro';
+
+## Objetivo
+
+Consolidar o aprendizado da linguagem Assembly RISC-V e compreender como a pilha é utilizada para preservar registradores entre chamadas de procedimento. A mesma expressão em C do Exercício 7 é usada, mas agora `leaf_example` salva e restaura os registradores `t0`, `t1` e `s0` na pilha:
+
+```c
+int f = (g + h) - (i + j);
+```
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V.
+2. No editor de texto do simulador, transcreva o código abaixo:
+
+```asm
+# Exercício 08
+# C expression: int f = (g + h) - (i + j);
+
+    .text
+    j main
+
+leaf_example:
+    addi sp, sp, -12      # ajusta a pilha para 3 registradores
+    sw   t1, 8(sp)        # salva t1
+    sw   t0, 4(sp)        # salva t0
+    sw   s0, 0(sp)        # salva s0
+
+    add  t0, a1, a2       # t0 = g + h
+    add  t1, a3, a4       # t1 = i + j
+    sub  s0, t0, t1       # f = t0 - t1
+    add  a0, s0, zero     # retorno em a0
+
+    lw   s0, 0(sp)        # restaura s0
+    lw   t0, 4(sp)        # restaura t0
+    lw   t1, 8(sp)        # restaura t1
+    addi sp, sp, 12       # libera espaço na pilha
+    jr   ra               # retorna da função
+
+main:
+    addi t1, zero, 1
+    addi t0, zero, 2
+    addi s0, zero, 3
+
+    addi a1, zero, 4      # g = 4
+    addi a2, zero, 7      # h = 7
+    addi a3, zero, 2      # i = 2
+    addi a4, zero, 1      # j = 1
+
+    jal  leaf_example     # chama leaf_example
+    nop                   # resultado em a0
+```
+
+## Execução Passo a Passo
+
+Execute o programa passo a passo clicando no botão **Run One Step**. A cada instrução, preencha a tabela abaixo cada vez que o valor de um registrador ou posição da memória for modificado.
+
+<RiscVExercise
+  lang="pt"
+  compact={true}
+  pseudoInstructionColumn={true}
+  registers={[
+    { name: "R10", alias: "a0 (f)" },
+    { name: "R11", alias: "a1 (g)" },
+    { name: "R12", alias: "a2 (h)" },
+    { name: "R13", alias: "a3 (i)" },
+    { name: "R14", alias: "a4 (j)" },
+    { name: "R1",  alias: "ra" },
+    { name: "R2",  alias: "sp" },
+    { name: "R5",  alias: "t0" },
+    { name: "R6",  alias: "t1" },
+    { name: "R8",  alias: "s0" },
+  ]}
+  memorySegments={[
+    { address: "0x7FFFEFF0", alias: "s0" },
+    { address: "0x7FFFEFF4", alias: "t0" },
+    { address: "0x7FFFEFF8", alias: "t1" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x7FFFEFFC",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "jal x0 56",
+      pseudoInstruction: "j main",
+      values: ["", "", "", "", "", "", "", "", "", "", "", "", ""],
+    },
+  ]}
+  totalRows={12}
+/>

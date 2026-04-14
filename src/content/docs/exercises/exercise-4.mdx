@@ -1,0 +1,119 @@
+---
+title: Exercise 4
+description: Consolidate the implementation of an if-else statement in RISC-V assembly using bne and j.
+---
+
+import RiscVExercise from '../../../components/RiscVExercise.astro';
+
+## Objective
+
+Consolidate conditional and unconditional branching in RISC-V assembly by implementing an if-else statement using bne and j. The following C expression is translated into assembly using `bne` and `j`:
+
+```c
+if (i == j)
+    f = g + h;
+else
+    f = g - h;
+```
+
+## Instructions
+
+1. Open the RISC-V simulator.
+2. Transcribe the code below into the editor:
+
+```asm
+# Exercise 04
+# C expression:
+#   if (i == j)
+#       f = g + h;
+#   else
+#       f = g - h;
+
+    .text
+main:
+    addi s1, zero, 10     # g = 10
+    addi s2, zero, 20     # h = 20
+    addi s3, zero, 1      # i = 1
+    addi s4, zero, 2      # j = 2
+
+    bne  s3, s4, Else     # if (i != j) goto Else
+    add  s0, s1, s2       # f = g + h
+    j Exit                # goto Exit
+
+Else:
+    sub  s0, s1, s2       # f = g - h
+
+Exit:
+    nop
+```
+
+## Step-by-step Execution — Scenario 1 (i ≠ j)
+
+With the initial values `i = 1` and `j = 2`, the branch **is taken** and execution jumps to `Else`, computing `f = g - h`.
+
+Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register is modified.
+
+<RiscVExercise
+  lang="en"
+  registers={[
+    { name: "R8",  alias: "s0" },
+    { name: "R9",  alias: "s1" },
+    { name: "R18", alias: "s2" },
+    { name: "R19", alias: "s3" },
+    { name: "R20", alias: "s4" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s1 zero 10",
+      values: ["", "0x0000000A", "", "", ""],
+    },
+  ]}
+  totalRows={6}
+/>
+
+## Step-by-step Execution — Scenario 2 (i = j)
+
+Now change the `addi` instruction that sets `s4` to assign `j = 1` (same as `i`):
+
+```asm
+    addi s4, zero, 1      # j = 1
+```
+
+Click **Reset** to reload the program, then run it step by step again. With `i = j = 1`, the branch is **not taken** and execution falls through to `add`, then jumps to `Exit` via `j`, skipping `Else`.
+
+<RiscVExercise
+  lang="en"
+  registers={[
+    { name: "R8",  alias: "s0" },
+    { name: "R9",  alias: "s1" },
+    { name: "R18", alias: "s2" },
+    { name: "R19", alias: "s3" },
+    { name: "R20", alias: "s4" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s1 zero 10",
+      values: ["", "0x0000000A", "", "", ""],
+    },
+  ]}
+  totalRows={7}
+/>
+
+Compare both tables and analyze the difference in the instruction flow (observe the PC sequence) and the final value of `s0`.
+

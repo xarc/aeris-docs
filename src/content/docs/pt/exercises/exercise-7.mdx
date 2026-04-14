@@ -1,0 +1,79 @@
+---
+title: Exercício 7
+description: Consolidar o funcionamento de chamadas de procedimento em RISC-V usando jal e jr.
+---
+
+import RiscVExercise from '../../../../components/RiscVExercise.astro';
+
+## Objetivo
+
+Consolidar o aprendizado da linguagem Assembly RISC-V e compreender como as instruções de suporte a procedimentos são executadas. A seguinte expressão em C é implementada como uma chamada de procedimento usando `jal` e `jr ra`:
+
+```c
+int f = (g + h) - (i + j);
+```
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V.
+2. No editor de texto do simulador, transcreva o código abaixo:
+
+```asm
+# Exercício 07
+# C expression: int f = (g + h) - (i + j);
+
+    .text
+    j main
+
+leaf_example:
+    add  a5, a1, a2       # a5 = g + h
+    add  a6, a3, a4       # a6 = i + j
+    sub  a0, a5, a6       # f = (g + h) - (i + j), resultado em a0
+    jr   ra               # retorna para o chamador
+
+main:
+    addi a1, zero, 4      # g = 4
+    addi a2, zero, 7      # h = 7
+    addi a3, zero, 2      # i = 2
+    addi a4, zero, 1      # j = 1
+    jal  leaf_example     # chama a função
+    nop                   # a0 agora tem o valor de retorno (f)
+```
+
+## Execução Passo a Passo
+
+Execute o programa passo a passo clicando no botão **Run One Step**. A cada instrução, preencha a tabela abaixo cada vez que o valor de um registrador for modificado.
+
+<RiscVExercise
+  lang="pt"
+  pseudoInstructionColumn={true}
+  registers={[
+    { name: "R10", alias: "a0 (f)" },
+    { name: "R11", alias: "a1 (g)" },
+    { name: "R12", alias: "a2 (h)" },
+    { name: "R13", alias: "a3 (i)" },
+    { name: "R14", alias: "a4 (j)" },
+    { name: "R15", alias: "a5" },
+    { name: "R16", alias: "a6" },
+    { name: "R1",  alias: "ra" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "jal x0 20",
+      pseudoInstruction: "j main",
+      values: ["", "", "", "", "", "", "", ""],
+    },
+  ]}
+  totalRows={10}
+/>

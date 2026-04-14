@@ -1,0 +1,87 @@
+---
+title: Exercício 5
+description: Consolidar o uso de laços while em Assembly RISC-V com indexação de vetores e desvio condicional.
+---
+
+import RiscVExercise from '../../../../components/RiscVExercise.astro';
+
+## Objetivo
+
+Consolidar o aprendizado da linguagem Assembly RISC-V e compreender como as instruções de desvio condicional são executadas dentro de um laço. A seguinte expressão em C é traduzida para assembly usando `bne` e `j`:
+
+```c
+while (save[i] == k)
+    i = i + 1;
+```
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V.
+2. No editor de texto do simulador, transcreva o código abaixo:
+
+```asm
+# Exercício 05
+# C expression:
+#   while (save[i] == k)
+#       i = i + 1;
+
+.data
+Array_save: .word 3, 3, 1, 3, 3, 1, 4, 3, 1   # save[0] até save[8]
+
+.text
+main:
+    la   s6, Array_save     # endereço base de save[]
+    addi s5, zero, 3        # k = 3
+    addi s3, zero, 0        # i = 0
+
+Loop:
+    add  t1, s3, s3         # t1 = i * 2
+    add  t1, t1, t1         # t1 = i * 4
+    add  t1, t1, s6         # t1 = endereço de save[i]
+    lw   t0, 0(t1)          # t0 = save[i]
+    bne  t0, s5, Exit       # se save[i] != k, vai para Exit
+    addi s3, s3, 1          # i = i + 1
+    j    Loop               # repete o laço
+
+Exit:
+    nop                     # fim do laço
+```
+
+## Execução Passo a Passo
+
+Execute o programa passo a passo clicando no botão **Run One Step**. A cada instrução, preencha a tabela abaixo cada vez que o valor de um registrador for modificado.
+
+<RiscVExercise
+  lang="pt"
+  pseudoInstructionColumn={true}
+  registers={[
+    { name: "R5",  alias: "t0" },
+    { name: "R6",  alias: "t1" },
+    { name: "R19", alias: "s3 (i)" },
+    { name: "R21", alias: "s5 (k)" },
+    { name: "R22", alias: "s6 (save)" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "auipc x22 64528",
+      pseudoInstruction: "la s6 Array_save",
+      values: ["", "", "", "", "0x10010000"],
+    },
+    {
+      pc: "0x00400004",
+      instruction: "addi x22 x22 0",
+      pseudoInstruction: "",
+      values: ["", "", "", "", ""],
+    },
+  ]}
+  totalRows={8}
+/>
+

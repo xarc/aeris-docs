@@ -1,16 +1,25 @@
 ---
 title: Exercício 1
-description: Traduzir a expressão f = (g + h) - (i + j) para Assembly RISC-V.
+description: Execute o primeiro programa em Assembly RISC-V — traduzir a expressão C f = (g + h) - (i + j) para assembly.
 ---
 
 import RiscVExercise from '../../../../components/RiscVExercise.astro';
 
-Baseado em Patterson & Hennessy, páginas 54–56. Percorra o programa abaixo instrução por instrução e preencha a tabela, registrando o valor do PC, a instrução executada e o valor dos registradores modificados após cada instrução.
 
-<RiscVExercise
-  code={`# C expression: f = (g + h) - (i + j)
+## Objetivo
 
-.text
+Executar o primeiro exemplo de programa em linguagem de montagem RISC-V.
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V.
+2. No editor de texto do simulador, transcreva o código abaixo:
+
+```asm
+# Exercício 01
+# C expression: f = (g + h) - (i + j)
+
+    .text
 
 main:
     addi t1, zero, 4      # g = 4
@@ -20,7 +29,14 @@ main:
 
     add  t5, t1, t2       # t5 = g + h
     add  t6, t3, t4       # t6 = i + j
-    sub  t0, t5, t6       # f = t5 - t6 (result in t0)`}
+    sub  t0, t5, t6       # f = t5 - t6 (resultado em t0)
+```
+
+## Execução Passo a Passo
+
+A execução dessa primeira instrução modificou apenas o conteúdo do registrador **t1**. As demais instruções irão modificar outros registradores. Execute o programa passo a passo e preencha a tabela abaixo, marcando o conteúdo do registrador PC, a instrução a ser executada e o valor dos registradores após a execução da instrução. Anote o valor de um registrador apenas quando ele é modificado.
+
+<RiscVExercise
   registers={[
     { name: "R5",  alias: "t0" },
     { name: "R6",  alias: "t1" },
@@ -48,3 +64,4 @@ main:
   ]}
   totalRows={6}
 />
+

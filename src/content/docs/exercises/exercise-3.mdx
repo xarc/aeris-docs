@@ -1,0 +1,114 @@
+---
+title: Exercise 3
+description: Consolidate the use of conditional branch instructions in RISC-V.
+---
+
+import RiscVExercise from '../../../components/RiscVExercise.astro';
+
+## Objective
+
+Consolidate the use of the conditional branch instruction in RISC-V. The following C expression is translated into assembly using `beq`:
+
+```c
+if (i != j)
+    f = g + h;
+f = f - i;
+```
+
+## Instructions
+
+1. Open the RISC-V simulator.
+2. Transcribe the code below into the editor:
+
+```asm
+# Exercise 03
+# C expression:
+#   if (i != j)
+#       f = g + h;
+#   f = f - i;
+
+    .text
+main:
+    addi s0, zero, 15     # f = 15
+    addi s1, zero, 10     # g = 10
+    addi s2, zero, 20     # h = 20
+    addi s3, zero, 1      # i = 1
+    addi s4, zero, 2      # j = 2
+
+    beq  s3, s4, L1       # if (i == j) goto L1
+    add  s0, s1, s2       # f = g + h
+
+L1:
+    sub  s0, s0, s3       # f = f - i
+```
+
+## Step-by-step Execution — Scenario 1 (i ≠ j)
+
+With the initial values `i = 1` and `j = 2`, the branch is **not taken** and all instructions execute.
+
+Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register is modified.
+
+<RiscVExercise
+  lang="en"
+  registers={[
+    { name: "R8",  alias: "s0" },
+    { name: "R9",  alias: "s1" },
+    { name: "R18", alias: "s2" },
+    { name: "R19", alias: "s3" },
+    { name: "R20", alias: "s4" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s0 zero 15",
+      values: ["0x0000000F", "", "", "", ""],
+    },
+  ]}
+  totalRows={7}
+/>
+
+## Step-by-step Execution — Scenario 2 (i = j)
+
+Now change the `addi` instruction that sets `s4` to assign `j = 1` (same as `i`):
+
+```asm
+    addi s4, zero, 1      # j = 1
+```
+
+Click **Reset** to reload the program, then run it step by step again. With `i = j = 1`, the branch **is taken** and the `add` instruction is skipped.
+
+<RiscVExercise
+  lang="en"
+  registers={[
+    { name: "R8",  alias: "s0" },
+    { name: "R9",  alias: "s1" },
+    { name: "R18", alias: "s2" },
+    { name: "R19", alias: "s3" },
+    { name: "R20", alias: "s4" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s0 zero 15",
+      values: ["0x0000000F", "", "", "", ""],
+    },
+  ]}
+  totalRows={6}
+/>
+
+Compare both tables and analyze the difference in the instruction flow (observe the PC sequence) and the final value of `s0`.
+

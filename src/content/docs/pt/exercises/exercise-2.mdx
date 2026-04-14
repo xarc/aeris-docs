@@ -1,0 +1,120 @@
+---
+title: Exercício 2
+description: Consolidar o uso de vetores e endereços de memória em Assembly RISC-V.
+---
+
+import RiscVExercise from '../../../../components/RiscVExercise.astro';
+
+
+## Objetivo
+
+Consolidar o uso de vetores e endereços de memória em Assembly RISC-V.
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V.
+2. No editor de texto do simulador, transcreva o código abaixo:
+
+
+```asm
+# Exercício 02
+# C expression: A[12] = h + A[8]
+
+    .data
+    Array_A: .word 0, 10, 20, 30, 40, 50, 60, 70,
+                   80, 90, 100, 110, 120, 130, 140, 150
+
+    .text
+main:
+    addi s2, zero, 1         # h = 1
+    la   s3, Array_A         # s3 = endereço base do vetor A
+    lw   t0, 32(s3)          # t0 = A[8] (32 = 4 * 8)
+    add  t0, s2, t0          # t0 = h + A[8]
+    sw   t0, 48(s3)          # A[12] = t0 (48 = 4 * 12)
+```
+
+O vetor **Array_A** possui 16 inteiros, cada um ocupando 4 bytes, armazenados sequencialmente na memória. O endereço inicial é atribuído pelo montador em **0x10010000**.
+
+A instrução `la` é uma pseudo-instrução traduzida pelo montador para duas instruções reais: **auipc** e **addi**, responsáveis por carregar o endereço base no registrador.
+
+## Layout do Array_A na Memória
+
+Na seção DATA, os elementos do vetor são armazenados em células de memória organizadas de forma matricial. O endereço inicial do vetor é **0x10010000**:
+
+| Endereço da linha | (+0) | (+4) | (+8) | (+12) | (+16) | (+20) | (+24) | (+28) |
+|---|---|---|---|---|---|---|---|---|
+| 0x10010000 | Array_A[0] | Array_A[1] | Array_A[2] | Array_A[3] | Array_A[4] | Array_A[5] | Array_A[6] | Array_A[7] |
+| 0x10010020 | Array_A[8] | Array_A[9] | Array_A[10] | Array_A[11] | Array_A[12] | Array_A[13] | Array_A[14] | Array_A[15] |
+
+## Entendendo os Endereços dos Elementos
+
+Cada elemento do vetor ocupa 4 bytes na memória. Para saber o endereço de um elemento, somamos o endereço da linha com o deslocamento da coluna.
+
+Por exemplo, para localizar o elemento **Array_A[11]**:
+- Ele está na segunda linha, coluna de deslocamento +12.
+- O endereço da linha é `0x10010020`.
+- O deslocamento +12 equivale a `0xC` em hexadecimal.
+- Somando: `0x10010020 + 0xC = 0x1001002C`
+
+Outra forma de calcular, a partir do endereço base do vetor:
+
+```
+0x10010000 + (4 × 11) = 0x10010000 + 44 = 0x10010000 + 0x2C = 0x1001002C
+```
+
+Fórmula geral: **(end. base em hexa) + (4 × posição no array em decimal) = (end. desejado)**
+
+## Importante
+
+Os valores definidos no vetor **Array_A** são escritos em decimal no código-fonte, mas armazenados na memória em formato hexadecimal. Por exemplo:
+
+- **Array_A[8]** no código é **80** (decimal).
+- Na memória, aparece como **0x00000050**.
+
+De acordo com o código, o registrador **s2** guarda o valor **1** e será somado ao conteúdo de **Array_A[8]**. O resultado será armazenado em **Array_A[12]**.
+
+A instrução `la` (load address) é uma pseudo-instrução que o montador traduz para uma sequência de **auipc** (Add Upper Immediate to PC) e **addi** no RISC-V. Essa sequência é responsável por carregar o endereço base do vetor (**Array_A**) no registrador **s3**.
+
+## Execução Passo a Passo
+
+Execute o programa passo a passo clicando no botão **Run One Step**. A cada instrução, preencha a tabela abaixo cada vez que o valor de um registrador ou posição da memória de dados for modificado.
+
+<RiscVExercise
+  lang="pt"
+  pseudoInstructionColumn={true}
+  registers={[
+    { name: "R5",  alias: "t0" },
+    { name: "R18", alias: "s2" },
+    { name: "R19", alias: "s3" },
+  ]}
+  memorySegments={[
+    { address: "0x10010000", alias: "Array_A[0]\n1ª linha col(+0)" },
+    { address: "0x10010020", alias: "Array_A[8]\n2ª linha col(+0)" },
+    { address: "0x10010030", alias: "Array_A[12]\n2ª linha col(+16)" },
+  ]}
+  initialValues={[
+    "0x00000000", "0x00000000", "0x00000000",
+    "0x00000000", "0x00000050", "0x00000078",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s2 zero 1",
+      pseudoInstruction: "",
+      values: ["", "0x00000001", "", "", "", ""],
+    },
+    {
+      pc: "0x00400004",
+      instruction: "auipc x19 64528",
+      pseudoInstruction: "la s3 Array_A",
+      values: ["", "", "0x10010004", "", "", ""],
+    },
+    {
+      pc: "0x00400008",
+      instruction: "addi x19 x19 -4",
+      pseudoInstruction: "",
+      values: ["", "", "0x10010000", "", "", ""],
+    },
+  ]}
+  totalRows={3}
+/>

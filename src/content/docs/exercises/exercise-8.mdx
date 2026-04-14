@@ -1,0 +1,108 @@
+---
+title: Exercise 8
+description: Consolidate stack usage for saving and restoring registers in RISC-V procedure calls.
+---
+
+import RiscVExercise from "../../../components/RiscVExercise.astro";
+
+## Objective
+
+Consolidate RISC-V assembly learning and understand how the stack is used to preserve registers across procedure calls. The same C expression as Exercise 7 is used, but now `leaf_example` saves and restores registers `t0`, `t1`, and `s0` on the stack:
+
+```c
+int f = (g + h) - (i + j);
+```
+
+## Instructions
+
+1. Open the RISC-V simulator.
+2. Transcribe the code below into the editor:
+
+```asm
+# Exercise 08
+# int f = (g + h) - (i + j);
+
+    .text
+    j main
+
+leaf_example:
+    addi sp, sp, -12      # adjust stack for 3 registers
+    sw   t1, 8(sp)        # save t1
+    sw   t0, 4(sp)        # save t0
+    sw   s0, 0(sp)        # save s0
+
+    add  t0, a1, a2       # t0 = g + h
+    add  t1, a3, a4       # t1 = i + j
+    sub  s0, t0, t1       # f = t0 - t1
+    add  a0, s0, zero     # return value in a0
+
+    lw   s0, 0(sp)        # restore s0
+    lw   t0, 4(sp)        # restore t0
+    lw   t1, 8(sp)        # restore t1
+    addi sp, sp, 12       # free stack space
+    jr   ra               # return from function
+
+main:
+    addi t1, zero, 1
+    addi t0, zero, 2
+    addi s0, zero, 3
+
+    addi a1, zero, 4      # g = 4
+    addi a2, zero, 7      # h = 7
+    addi a3, zero, 2      # i = 2
+    addi a4, zero, 1      # j = 1
+
+    jal  leaf_example     # call leaf_example
+    nop                   # result in a0
+```
+
+## Step-by-step Execution
+
+Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register or memory position is modified.
+
+<RiscVExercise
+  lang="en"
+  compact={true}
+  pseudoInstructionColumn={true}
+  registers={[
+    { name: "R10", alias: "a0 (f)" },
+    { name: "R11", alias: "a1 (g)" },
+    { name: "R12", alias: "a2 (h)" },
+    { name: "R13", alias: "a3 (i)" },
+    { name: "R14", alias: "a4 (j)" },
+    { name: "R1", alias: "ra" },
+    { name: "R2", alias: "sp" },
+    { name: "R5", alias: "t0" },
+    { name: "R6", alias: "t1" },
+    { name: "R8", alias: "s0" },
+  ]}
+  memorySegments={[
+    { address: "0x7FFFEFF0", alias: "s0" },
+    { address: "0x7FFFEFF4", alias: "t0" },
+    { address: "0x7FFFEFF8", alias: "t1" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x7FFFEFFC",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "jal x0 56",
+      pseudoInstruction: "j main",
+      values: ["", "", "", "", "", "", "", "", "", "", "", "", ""],
+    },
+  ]}
+  totalRows={12}
+/>

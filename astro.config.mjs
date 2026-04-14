@@ -11,6 +11,7 @@ export default defineConfig({
     starlight({
       title: "ÆRIS DOCS",
       customCss: ["./src/styles/theme.css"],
+      tableOfContents: false,
 
       locales: {
         root: {
@@ -157,6 +158,41 @@ export default defineConfig({
               label: "Exercise 1",
               translations: { "pt-BR": "Exercício 1" },
               link: "/exercises/exercise-1/",
+            },
+            {
+              label: "Exercise 2",
+              translations: { "pt-BR": "Exercício 2" },
+              link: "/exercises/exercise-2/",
+            },
+            {
+              label: "Exercise 3",
+              translations: { "pt-BR": "Exercício 3" },
+              link: "/exercises/exercise-3/",
+            },
+            {
+              label: "Exercise 4",
+              translations: { "pt-BR": "Exercício 4" },
+              link: "/exercises/exercise-4/",
+            },
+            {
+              label: "Exercise 5",
+              translations: { "pt-BR": "Exercício 5" },
+              link: "/exercises/exercise-5/",
+            },
+            {
+              label: "Exercise 6",
+              translations: { "pt-BR": "Exercício 6" },
+              link: "/exercises/exercise-6/",
+            },
+            {
+              label: "Exercise 7",
+              translations: { "pt-BR": "Exercício 7" },
+              link: "/exercises/exercise-7/",
+            },
+            {
+              label: "Exercise 8",
+              translations: { "pt-BR": "Exercício 8" },
+              link: "/exercises/exercise-8/",
             },
           ],
         },

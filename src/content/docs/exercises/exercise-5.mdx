@@ -1,0 +1,86 @@
+---
+title: Exercise 5
+description: Consolidate the use of while loops in RISC-V assembly with array indexing and conditional branching.
+---
+
+import RiscVExercise from '../../../components/RiscVExercise.astro';
+
+## Objective
+
+Consolidate RISC-V assembly learning and understand how conditional branch instructions are executed inside a loop. The following C expression is translated into assembly using `bne` and `j`:
+
+```c
+while (save[i] == k)
+    i = i + 1;
+```
+
+## Instructions
+
+1. Open the RISC-V simulator.
+2. Transcribe the code below into the editor:
+
+```asm
+# Exercise 05
+# C expression:
+#   while (save[i] == k) i = i + 1;
+
+.data
+Array_save: .word 3, 3, 1, 3, 3, 1, 4, 3, 1   # save[0] to save[8]
+
+.text
+main:
+    la   s6, Array_save     # base address of save[]
+    addi s5, zero, 3        # k = 3
+    addi s3, zero, 0        # i = 0
+
+Loop:
+    add  t1, s3, s3         # t1 = i * 2
+    add  t1, t1, t1         # t1 = i * 4
+    add  t1, t1, s6         # t1 = address of save[i]
+    lw   t0, 0(t1)          # t0 = save[i]
+    bne  t0, s5, Exit       # if (save[i] != k) goto Exit
+    addi s3, s3, 1          # i = i + 1
+    j    Loop               # repeat loop
+
+Exit:
+    nop                     # end of loop
+```
+
+## Step-by-step Execution
+
+Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register is modified.
+
+<RiscVExercise
+  lang="en"
+  pseudoInstructionColumn={true}
+  registers={[
+    { name: "R5",  alias: "t0" },
+    { name: "R6",  alias: "t1" },
+    { name: "R19", alias: "s3 (i)" },
+    { name: "R21", alias: "s5 (k)" },
+    { name: "R22", alias: "s6 (save)" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "auipc x22 64528",
+      pseudoInstruction: "la s6 Array_save",
+      values: ["", "", "", "", "0x10010000"],
+    },
+    {
+      pc: "0x00400004",
+      instruction: "addi x22 x22 0",
+      pseudoInstruction: "",
+      values: ["", "", "", "", ""],
+    },
+  ]}
+  totalRows={8}
+/>
+

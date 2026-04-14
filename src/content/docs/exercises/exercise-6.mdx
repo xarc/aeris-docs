@@ -1,0 +1,66 @@
+---
+title: Exercise 6
+description: Consolidate the use of for loops in RISC-V assembly using slti and beq.
+---
+
+import RiscVExercise from '../../../components/RiscVExercise.astro';
+
+## Objective
+
+Consolidate RISC-V assembly learning and understand how conditional branch instructions are executed inside a loop. The following C expression is translated into assembly using `slti` and `beq`:
+
+```c
+for (i = 0; i < 3; i++)
+    j++;
+```
+
+## Instructions
+
+1. Open the RISC-V simulator.
+2. Transcribe the code below into the editor:
+
+```asm
+# Exercise 06
+# C expression: for (i = 0; i < 3; i++) j++;
+
+    .text
+main:
+    addi s0, zero, 0     # i = 0
+
+Loop:
+    slti t0, s0, 3       # if i < 3 then t0 = 1, else t0 = 0
+    beq  t0, zero, Exit  # if t0 == 0, jump to Exit
+    addi s1, s1, 1       # j++
+    addi s0, s0, 1       # i++
+    j    Loop            # go back to Loop
+
+Exit:
+    nop                  # end of program
+```
+
+## Step-by-step Execution
+
+Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register is modified.
+
+<RiscVExercise
+  lang="en"
+  registers={[
+    { name: "R5", alias: "t0" },
+    { name: "R8", alias: "s0 (i)" },
+    { name: "R9", alias: "s1 (j)" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s0 zero 0",
+      values: ["", "0x00000000", ""],
+    },
+  ]}
+  totalRows={8}
+/>
+

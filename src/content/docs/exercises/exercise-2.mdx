@@ -1,0 +1,120 @@
+---
+title: Exercise 2
+description: Consolidate the use of arrays and memory addresses in RISC-V assembly.
+---
+
+import RiscVExercise from '../../../components/RiscVExercise.astro';
+
+
+## Objective
+
+Consolidate the use of arrays and memory addresses in RISC-V assembly.
+
+## Instructions
+
+1. Open the RISC-V simulator.
+2. Transcribe the code below into the editor:
+
+
+```asm
+# Exercise 02
+# C expression: A[12] = h + A[8]
+
+    .data
+    Array_A: .word 0, 10, 20, 30, 40, 50, 60, 70,
+                   80, 90, 100, 110, 120, 130, 140, 150
+
+    .text
+main:
+    addi s2, zero, 1         # h = 1
+    la   s3, Array_A         # s3 = base address of array A
+    lw   t0, 32(s3)          # t0 = A[8]  (32 = 4 * 8)
+    add  t0, s2, t0          # t0 = h + A[8]
+    sw   t0, 48(s3)          # A[12] = t0 (48 = 4 * 12)
+```
+
+The **Array_A** vector has 16 integers, each occupying 4 bytes, stored sequentially in memory. The base address is assigned by the assembler at **0x10010000**.
+
+The `la` instruction is a pseudo-instruction translated by the assembler into two real instructions: **auipc** and **addi**, which load the base address into the register.
+
+## Memory Layout of Array_A
+
+In the DATA section, array elements are stored in memory cells organized in a matrix layout. The base address of the array is **0x10010000**:
+
+| Row address | (+0) | (+4) | (+8) | (+12) | (+16) | (+20) | (+24) | (+28) |
+|---|---|---|---|---|---|---|---|---|
+| 0x10010000 | Array_A[0] | Array_A[1] | Array_A[2] | Array_A[3] | Array_A[4] | Array_A[5] | Array_A[6] | Array_A[7] |
+| 0x10010020 | Array_A[8] | Array_A[9] | Array_A[10] | Array_A[11] | Array_A[12] | Array_A[13] | Array_A[14] | Array_A[15] |
+
+## Understanding Element Addresses
+
+Each array element occupies 4 bytes. To find the address of an element, add the row address to the column offset.
+
+For example, to locate **Array_A[11]**:
+- It is in the second row, column offset +12.
+- Row address: `0x10010020`
+- Offset +12 = `0xC` in hexadecimal
+- Sum: `0x10010020 + 0xC = 0x1001002C`
+
+Or calculated from the base address:
+
+```
+0x10010000 + (4 × 11) = 0x10010000 + 44 = 0x10010000 + 0x2C = 0x1001002C
+```
+
+General formula: **(base address in hex) + (4 × array index in decimal) = (target address)**
+
+## Important
+
+The values defined in **Array_A** are written in decimal in the source code, but stored in memory in hexadecimal. For example:
+
+- **Array_A[8]** in the code is **80** (decimal).
+- In memory it appears as **0x00000050**.
+
+According to the code, register **s2** holds the value **1** and will be added to the contents of **Array_A[8]**. The result will be stored in **Array_A[12]**.
+
+The `la` (load address) instruction is a pseudo-instruction that the assembler translates into a sequence of **auipc** (Add Upper Immediate to PC) and **addi** instructions in RISC-V. This sequence loads the base address of **Array_A** into register **s3**.
+
+## Step-by-step Execution
+
+Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register or data memory position is modified.
+
+<RiscVExercise
+  lang="en"
+  pseudoInstructionColumn={true}
+  registers={[
+    { name: "R5",  alias: "t0" },
+    { name: "R18", alias: "s2" },
+    { name: "R19", alias: "s3" },
+  ]}
+  memorySegments={[
+    { address: "0x10010000", alias: "Array_A[0]\n1st row col(+0)" },
+    { address: "0x10010020", alias: "Array_A[8]\n2nd row col(+0)" },
+    { address: "0x10010030", alias: "Array_A[12]\n2nd row col(+16)" },
+  ]}
+  initialValues={[
+    "0x00000000", "0x00000000", "0x00000000",
+    "0x00000000", "0x00000050", "0x00000078",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s2 zero 1",
+      pseudoInstruction: "",
+      values: ["", "0x00000001", "", "", "", ""],
+    },
+    {
+      pc: "0x00400004",
+      instruction: "auipc x19 64528",
+      pseudoInstruction: "la s3 Array_A",
+      values: ["", "", "0x10010004", "", "", ""],
+    },
+    {
+      pc: "0x00400008",
+      instruction: "addi x19 x19 -4",
+      pseudoInstruction: "",
+      values: ["", "", "0x10010000", "", "", ""],
+    },
+  ]}
+  totalRows={3}
+/>

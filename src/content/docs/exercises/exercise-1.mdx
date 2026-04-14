@@ -1,17 +1,25 @@
 ---
 title: Exercise 1
-description: Translate the expression f = (g + h) - (i + j) into RISC-V assembly.
+description: Run the first RISC-V assembly program — translate the C expression f = (g + h) - (i + j) into assembly.
 ---
 
 import RiscVExercise from '../../../components/RiscVExercise.astro';
 
-Based on Patterson & Hennessy, pages 54–56. Step through the program below instruction by instruction and fill in the table, recording the PC value, the instruction being executed, and the value of the modified registers after each instruction.
 
-<RiscVExercise
-  lang="en"
-  code={`# C expression: f = (g + h) - (i + j)
+## Objective
 
-.text
+Run the first example of a RISC-V assembly language program.
+
+## Instructions
+
+1. Open the RISC-V simulator.
+2. Transcribe the code below into the editor:
+
+```asm
+# Exercise 01
+# C expression: f = (g + h) - (i + j)
+
+    .text
 
 main:
     addi t1, zero, 4      # g = 4
@@ -21,7 +29,15 @@ main:
 
     add  t5, t1, t2       # t5 = g + h
     add  t6, t3, t4       # t6 = i + j
-    sub  t0, t5, t6       # f = t5 - t6 (result in t0)`}
+    sub  t0, t5, t6       # f = t5 - t6 (result in t0)
+```
+
+## Step-by-step Execution
+
+The first instruction modified only register **t1**. The remaining instructions will modify other registers. Run the program step by step and fill in the table below, recording the PC value, the instruction being executed, and the value of the registers after each instruction. Only record a register's value when it is modified.
+
+<RiscVExercise
+  lang="en"
   registers={[
     { name: "R5",  alias: "t0" },
     { name: "R6",  alias: "t1" },
@@ -49,3 +65,4 @@ main:
   ]}
   totalRows={6}
 />
+

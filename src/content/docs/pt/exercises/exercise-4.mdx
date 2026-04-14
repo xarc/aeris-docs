@@ -1,0 +1,119 @@
+---
+title: Exercício 4
+description: Consolidar a implementação de um comando if-else em Assembly RISC-V usando bne e j.
+---
+
+import RiscVExercise from '../../../../components/RiscVExercise.astro';
+
+## Objetivo
+
+Consolidar o uso de desvios condicionais e incondicionais em Assembly RISC-V por meio de um comando if-else com bne e j. A seguinte expressão em C é traduzida para assembly usando `bne` e `j`:
+
+```c
+if (i == j)
+    f = g + h;
+else
+    f = g - h;
+```
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V.
+2. No editor de texto do simulador, transcreva o código abaixo:
+
+```asm
+# Exercício 04
+# C expression:
+#   if (i == j)
+#       f = g + h;
+#   else
+#       f = g - h;
+
+    .text
+main:
+    addi s1, zero, 10     # g = 10
+    addi s2, zero, 20     # h = 20
+    addi s3, zero, 1      # i = 1
+    addi s4, zero, 2      # j = 2
+
+    bne  s3, s4, Else     # if (i != j) goto Else
+    add  s0, s1, s2       # f = g + h
+    j Exit                # goto Exit
+
+Else:
+    sub  s0, s1, s2       # f = g - h
+
+Exit:
+    nop
+```
+
+## Execução Passo a Passo — Cenário 1 (i ≠ j)
+
+Com os valores iniciais `i = 1` e `j = 2`, o desvio **é tomado** e a execução salta para `Else`, calculando `f = g - h`.
+
+Execute o programa passo a passo clicando no botão **Run One Step**. A cada instrução, preencha a tabela abaixo cada vez que o valor de um registrador for modificado.
+
+<RiscVExercise
+  lang="pt"
+  registers={[
+    { name: "R8",  alias: "s0" },
+    { name: "R9",  alias: "s1" },
+    { name: "R18", alias: "s2" },
+    { name: "R19", alias: "s3" },
+    { name: "R20", alias: "s4" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s1 zero 10",
+      values: ["", "0x0000000A", "", "", ""],
+    },
+  ]}
+  totalRows={6}
+/>
+
+## Execução Passo a Passo — Cenário 2 (i = j)
+
+Agora altere a instrução `addi` que define `s4` para atribuir `j = 1` (igual a `i`):
+
+```asm
+    addi s4, zero, 1      # j = 1
+```
+
+Clique em **Reset** para recarregar o programa e execute passo a passo novamente. Com `i = j = 1`, o desvio **não é tomado** e a execução continua normalmente para o `add`, em seguida salta para `Exit` via `j`, ignorando `Else`.
+
+<RiscVExercise
+  lang="pt"
+  registers={[
+    { name: "R8",  alias: "s0" },
+    { name: "R9",  alias: "s1" },
+    { name: "R18", alias: "s2" },
+    { name: "R19", alias: "s3" },
+    { name: "R20", alias: "s4" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "addi s1 zero 10",
+      values: ["", "0x0000000A", "", "", ""],
+    },
+  ]}
+  totalRows={7}
+/>
+
+Compare as duas tabelas e analise a diferença no fluxo de execução (observe a sequência de valores do **PC**) e o valor final de `s0`.
+

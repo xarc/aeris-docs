@@ -1,0 +1,79 @@
+---
+title: Exercise 7
+description: Consolidate how procedure calls work in RISC-V using jal and jr instructions.
+---
+
+import RiscVExercise from '../../../components/RiscVExercise.astro';
+
+## Objective
+
+Consolidate RISC-V assembly learning and understand how procedure-support instructions are executed. The following C expression is implemented as a procedure call using `jal` and `jr ra`:
+
+```c
+int f = (g + h) - (i + j);
+```
+
+## Instructions
+
+1. Open the RISC-V simulator.
+2. Transcribe the code below into the editor:
+
+```asm
+# Exercise 07
+# C expression: int f = (g + h) - (i + j);
+
+    .text
+    j main
+
+leaf_example:
+    add  a5, a1, a2       # a5 = g + h
+    add  a6, a3, a4       # a6 = i + j
+    sub  a0, a5, a6       # f = (g + h) - (i + j), result in a0
+    jr   ra               # return to caller
+
+main:
+    addi a1, zero, 4      # g = 4
+    addi a2, zero, 7      # h = 7
+    addi a3, zero, 2      # i = 2
+    addi a4, zero, 1      # j = 1
+    jal  leaf_example     # call the function
+    nop                   # a0 now holds the return value (f)
+```
+
+## Step-by-step Execution
+
+Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register is modified.
+
+<RiscVExercise
+  lang="en"
+  pseudoInstructionColumn={true}
+  registers={[
+    { name: "R10", alias: "a0 (f)" },
+    { name: "R11", alias: "a1 (g)" },
+    { name: "R12", alias: "a2 (h)" },
+    { name: "R13", alias: "a3 (i)" },
+    { name: "R14", alias: "a4 (j)" },
+    { name: "R15", alias: "a5" },
+    { name: "R16", alias: "a6" },
+    { name: "R1",  alias: "ra" },
+  ]}
+  initialValues={[
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+  ]}
+  prefilledRows={[
+    {
+      pc: "0x00400000",
+      instruction: "jal x0 20",
+      pseudoInstruction: "j main",
+      values: ["", "", "", "", "", "", "", ""],
+    },
+  ]}
+  totalRows={10}
+/>
