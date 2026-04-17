@@ -42,7 +42,7 @@ L1:
     sub  s0, s0, s3       # f = f - i
 ```
 
-## Step-by-step Execution — Scenario 1 (i ≠ j)
+## Step-by-step Execution - Scenario 1 (i ≠ j)
 
 With the initial values `i = 1` and `j = 2`, the branch is **not taken** and all instructions execute.
 
@@ -71,10 +71,19 @@ Run the program step by step using the **Run One Step** button. For each instruc
       values: ["0x0000000F", "", "", "", ""],
     },
   ]}
+  correctRows={[
+    { pc: "0x00400004", instruction: "addi s1 zero 10", values: ["", "0x0000000A", "", "", ""] },
+    { pc: "0x00400008", instruction: "addi s2 zero 20", values: ["", "", "0x00000014", "", ""] },
+    { pc: "0x0040000C", instruction: "addi s3 zero 1",  values: ["", "", "", "0x00000001", ""] },
+    { pc: "0x00400010", instruction: "addi s4 zero 2",  values: ["", "", "", "", "0x00000002"] },
+    { pc: "0x00400014", instruction: "beq s3 s4 L1",     values: ["", "", "", "", ""] },
+    { pc: "0x00400018", instruction: "add s0 s1 s2",    values: ["0x0000001E", "", "", "", ""] },
+    { pc: "0x0040001C", instruction: "sub s0 s0 s3",    values: ["0x0000001D", "", "", "", ""] },
+  ]}
   totalRows={7}
 />
 
-## Step-by-step Execution — Scenario 2 (i = j)
+## Step-by-step Execution - Scenario 2 (i = j)
 
 Now change the `addi` instruction that sets `s4` to assign `j = 1` (same as `i`):
 
@@ -106,6 +115,14 @@ Click **Reset** to reload the program, then run it step by step again. With `i =
       instruction: "addi s0 zero 15",
       values: ["0x0000000F", "", "", "", ""],
     },
+  ]}
+  correctRows={[
+    { pc: "0x00400004", instruction: "addi s1 zero 10", values: ["", "0x0000000A", "", "", ""] },
+    { pc: "0x00400008", instruction: "addi s2 zero 20", values: ["", "", "0x00000014", "", ""] },
+    { pc: "0x0040000C", instruction: "addi s3 zero 1",  values: ["", "", "", "0x00000001", ""] },
+    { pc: "0x00400010", instruction: "addi s4 zero 1",  values: ["", "", "", "", "0x00000001"] },
+    { pc: "0x00400014", instruction: "beq s3 s4 L1",     values: ["", "", "", "", ""] },
+    { pc: "0x0040001C", instruction: "sub s0 s0 s3",    values: ["0x0000000E", "", "", "", ""] },
   ]}
   totalRows={6}
 />

@@ -82,6 +82,30 @@ Execute o programa passo a passo clicando no botão **Run One Step**. A cada ins
       values: ["", "", "", "", ""],
     },
   ]}
+  correctRows={[
+    { pc: "0x00400008", instruction: "addi s5 zero 3",  values: ["", "", "", "0x00000003", ""] },
+    { pc: "0x0040000C", instruction: "addi s3 zero 0",  values: ["", "", "0x00000000", "", ""] },
+    { pc: "0x00400010", instruction: "add t1 s3 s3",    values: ["", "0x00000000", "", "", ""] },
+    { pc: "0x00400014", instruction: "add t1 t1 t1",    values: ["", "0x00000000", "", "", ""] },
+    { pc: "0x00400018", instruction: "add t1 t1 s6",    values: ["", "0x10010000", "", "", ""] },
+    { pc: "0x0040001C", instruction: "lw t0 0(t1)",     values: ["0x00000003", "", "", "", ""] },
+    { pc: "0x00400020", instruction: "bne t0 s5 Exit",  values: ["", "", "", "", ""] },
+    { pc: "0x00400024", instruction: "addi s3 s3 1",    values: ["", "", "0x00000001", "", ""] },
+    { pc: "0x00400028", instruction: "j Loop",          values: ["", "", "", "", ""] },
+    { pc: "0x00400010", instruction: "add t1 s3 s3",    values: ["", "0x00000002", "", "", ""] },
+    { pc: "0x00400014", instruction: "add t1 t1 t1",    values: ["", "0x00000004", "", "", ""] },
+    { pc: "0x00400018", instruction: "add t1 t1 s6",    values: ["", "0x10010004", "", "", ""] },
+    { pc: "0x0040001C", instruction: "lw t0 0(t1)",     values: ["0x00000003", "", "", "", ""] },
+    { pc: "0x00400020", instruction: "bne t0 s5 Exit",  values: ["", "", "", "", ""] },
+    { pc: "0x00400024", instruction: "addi s3 s3 1",    values: ["", "", "0x00000002", "", ""] },
+    { pc: "0x00400028", instruction: "j Loop",          values: ["", "", "", "", ""] },
+    { pc: "0x00400010", instruction: "add t1 s3 s3",    values: ["", "0x00000004", "", "", ""] },
+    { pc: "0x00400014", instruction: "add t1 t1 t1",    values: ["", "0x00000008", "", "", ""] },
+    { pc: "0x00400018", instruction: "add t1 t1 s6",    values: ["", "0x10010008", "", "", ""] },
+    { pc: "0x0040001C", instruction: "lw t0 0(t1)",     values: ["0x00000001", "", "", "", ""] },
+    { pc: "0x00400020", instruction: "bne t0 s5 Exit",  values: ["", "", "", "", ""] },
+    { pc: "0x0040002C", instruction: "nop",             values: ["", "", "", "", ""] },
+  ]}
   totalRows={8}
 />
 

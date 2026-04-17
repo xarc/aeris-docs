@@ -1,6 +1,6 @@
 ---
 title: Exercise 1
-description: Run the first RISC-V assembly program — translate the C expression f = (g + h) - (i + j) into assembly.
+description: Run the first RISC-V assembly program - translate the C expression f = (g + h) - (i + j) into assembly.
 ---
 
 import RiscVExercise from '../../../components/RiscVExercise.astro';
@@ -62,6 +62,14 @@ The first instruction modified only register **t1**. The remaining instructions 
       instruction: "addi t1 zero 4",
       values: ["0x00000000", "0x00000004", "0x00000000", "0x00000000", "0x00000000", "0x00000000", "0x00000000"],
     },
+  ]}
+  correctRows={[
+    { pc: "0x00400004", instruction: "addi t2 zero 3", values: ["", "", "0x00000003", "", "", "", ""] },
+    { pc: "0x00400008", instruction: "addi t3 zero 2", values: ["", "", "", "0x00000002", "", "", ""] },
+    { pc: "0x0040000C", instruction: "addi t4 zero 1", values: ["", "", "", "", "0x00000001", "", ""] },
+    { pc: "0x00400010", instruction: "add t5 t1 t2",   values: ["", "", "", "", "", "0x00000007", ""] },
+    { pc: "0x00400014", instruction: "add t6 t3 t4",   values: ["", "", "", "", "", "", "0x00000003"] },
+    { pc: "0x00400018", instruction: "sub t0 t5 t6",   values: ["0x00000004", "", "", "", "", "", ""] },
   ]}
   totalRows={6}
 />

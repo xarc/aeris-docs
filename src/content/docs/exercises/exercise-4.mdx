@@ -47,7 +47,7 @@ Exit:
     nop
 ```
 
-## Step-by-step Execution — Scenario 1 (i ≠ j)
+## Step-by-step Execution - Scenario 1 (i ≠ j)
 
 With the initial values `i = 1` and `j = 2`, the branch **is taken** and execution jumps to `Else`, computing `f = g - h`.
 
@@ -76,10 +76,18 @@ Run the program step by step using the **Run One Step** button. For each instruc
       values: ["", "0x0000000A", "", "", ""],
     },
   ]}
+  correctRows={[
+    { pc: "0x00400004", instruction: "addi s2 zero 20", values: ["", "", "0x00000014", "", ""] },
+    { pc: "0x00400008", instruction: "addi s3 zero 1",  values: ["", "", "", "0x00000001", ""] },
+    { pc: "0x0040000C", instruction: "addi s4 zero 2",  values: ["", "", "", "", "0x00000002"] },
+    { pc: "0x00400010", instruction: "bne s3 s4 Else",    values: ["", "", "", "", ""] },
+    { pc: "0x0040001C", instruction: "sub s0 s1 s2",    values: ["0xFFFFFFF6", "", "", "", ""] },
+    { pc: "0x00400020", instruction: "nop",             values: ["", "", "", "", ""] },
+  ]}
   totalRows={6}
 />
 
-## Step-by-step Execution — Scenario 2 (i = j)
+## Step-by-step Execution - Scenario 2 (i = j)
 
 Now change the `addi` instruction that sets `s4` to assign `j = 1` (same as `i`):
 
@@ -111,6 +119,15 @@ Click **Reset** to reload the program, then run it step by step again. With `i =
       instruction: "addi s1 zero 10",
       values: ["", "0x0000000A", "", "", ""],
     },
+  ]}
+  correctRows={[
+    { pc: "0x00400004", instruction: "addi s2 zero 20", values: ["", "", "0x00000014", "", ""] },
+    { pc: "0x00400008", instruction: "addi s3 zero 1",  values: ["", "", "", "0x00000001", ""] },
+    { pc: "0x0040000C", instruction: "addi s4 zero 1",  values: ["", "", "", "", "0x00000001"] },
+    { pc: "0x00400010", instruction: "bne s3 s4 Else",    values: ["", "", "", "", ""] },
+    { pc: "0x00400014", instruction: "add s0 s1 s2",    values: ["0x0000001E", "", "", "", ""] },
+    { pc: "0x00400018", instruction: "j Exit",        values: ["", "", "", "", ""] },
+    { pc: "0x00400020", instruction: "nop",             values: ["", "", "", "", ""] },
   ]}
   totalRows={7}
 />

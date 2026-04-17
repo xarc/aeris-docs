@@ -116,5 +116,10 @@ Run the program step by step using the **Run One Step** button. For each instruc
       values: ["", "", "0x10010000", "", "", ""],
     },
   ]}
+  correctRows={[
+    { pc: "0x0040000C", instruction: "lw t0 32(s3)",  values: ["0x00000050", "", "", "", "", ""] },
+    { pc: "0x00400010", instruction: "add t0 s2 t0",  values: ["0x00000051", "", "", "", "", ""] },
+    { pc: "0x00400014", instruction: "sw t0 48(s3)",  values: ["", "", "", "", "", "0x00000051"] },
+  ]}
   totalRows={3}
 />

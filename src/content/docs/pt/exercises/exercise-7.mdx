@@ -75,5 +75,17 @@ Execute o programa passo a passo clicando no botão **Run One Step**. A cada ins
       values: ["", "", "", "", "", "", "", ""],
     },
   ]}
+  correctRows={[
+    { pc: "0x00400014", instruction: "addi a1 zero 4",  values: ["", "0x00000004", "", "", "", "", "", ""] },
+    { pc: "0x00400018", instruction: "addi a2 zero 7",  values: ["", "", "0x00000007", "", "", "", "", ""] },
+    { pc: "0x0040001C", instruction: "addi a3 zero 2",  values: ["", "", "", "0x00000002", "", "", "", ""] },
+    { pc: "0x00400020", instruction: "addi a4 zero 1",  values: ["", "", "", "", "0x00000001", "", "", ""] },
+    { pc: "0x00400024", instruction: "jal leaf_example",      values: ["", "", "", "", "", "", "", "0x00400028"] },
+    { pc: "0x00400004", instruction: "add a5 a1 a2",    values: ["", "", "", "", "", "0x0000000B", "", ""] },
+    { pc: "0x00400008", instruction: "add a6 a3 a4",    values: ["", "", "", "", "", "", "0x00000003", ""] },
+    { pc: "0x0040000C", instruction: "sub a0 a5 a6",    values: ["0x00000008", "", "", "", "", "", "", ""] },
+    { pc: "0x00400010", instruction: "jr ra",    values: ["", "", "", "", "", "", "", ""] },
+    { pc: "0x00400028", instruction: "nop",             values: ["", "", "", "", "", "", "", ""] },
+  ]}
   totalRows={10}
 />

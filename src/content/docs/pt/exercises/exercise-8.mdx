@@ -104,5 +104,29 @@ Execute o programa passo a passo clicando no botão **Run One Step**. A cada ins
       values: ["", "", "", "", "", "", "", "", "", "", "", "", ""],
     },
   ]}
+  correctRows={[
+    { pc: "0x00400038", instruction: "addi t1 zero 1",  values: ["", "", "", "", "", "", "", "", "0x00000001", "", "", "", ""] },
+    { pc: "0x0040003C", instruction: "addi t0 zero 2",  values: ["", "", "", "", "", "", "", "0x00000002", "", "", "", "", ""] },
+    { pc: "0x00400040", instruction: "addi s0 zero 3",  values: ["", "", "", "", "", "", "", "", "", "0x00000003", "", "", ""] },
+    { pc: "0x00400044", instruction: "addi a1 zero 4",  values: ["", "0x00000004", "", "", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400048", instruction: "addi a2 zero 7",  values: ["", "", "0x00000007", "", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x0040004C", instruction: "addi a3 zero 2",  values: ["", "", "", "0x00000002", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400050", instruction: "addi a4 zero 1",  values: ["", "", "", "", "0x00000001", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400054", instruction: "jal leaf_example",      values: ["", "", "", "", "", "0x00400058", "", "", "", "", "", "", ""] },
+    { pc: "0x00400004", instruction: "addi sp sp -12",  values: ["", "", "", "", "", "", "0x7FFFEFF0", "", "", "", "", "", ""] },
+    { pc: "0x00400008", instruction: "sw t1 8(sp)",     values: ["", "", "", "", "", "", "", "", "", "", "", "", "0x00000001"] },
+    { pc: "0x0040000C", instruction: "sw t0 4(sp)",     values: ["", "", "", "", "", "", "", "", "", "", "", "0x00000002", ""] },
+    { pc: "0x00400010", instruction: "sw s0 0(sp)",     values: ["", "", "", "", "", "", "", "", "", "", "0x00000003", "", ""] },
+    { pc: "0x00400014", instruction: "add t0 a1 a2",    values: ["", "", "", "", "", "", "", "0x0000000B", "", "", "", "", ""] },
+    { pc: "0x00400018", instruction: "add t1 a3 a4",    values: ["", "", "", "", "", "", "", "", "0x00000003", "", "", "", ""] },
+    { pc: "0x0040001C", instruction: "sub s0 t0 t1",    values: ["", "", "", "", "", "", "", "", "", "0x00000008", "", "", ""] },
+    { pc: "0x00400020", instruction: "add a0 s0 zero",  values: ["0x00000008", "", "", "", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400024", instruction: "lw s0 0(sp)",     values: ["", "", "", "", "", "", "", "", "", "0x00000003", "", "", ""] },
+    { pc: "0x00400028", instruction: "lw t0 4(sp)",     values: ["", "", "", "", "", "", "", "0x00000002", "", "", "", "", ""] },
+    { pc: "0x0040002C", instruction: "lw t1 8(sp)",     values: ["", "", "", "", "", "", "", "", "0x00000001", "", "", "", ""] },
+    { pc: "0x00400030", instruction: "addi sp sp 12",   values: ["", "", "", "", "", "", "0x7FFFEFFC", "", "", "", "", "", ""] },
+    { pc: "0x00400034", instruction: "jr ra",    values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400058", instruction: "nop",             values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
+  ]}
   totalRows={12}
 />

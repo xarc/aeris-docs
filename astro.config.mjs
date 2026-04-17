@@ -26,6 +26,11 @@ export default defineConfig({
 
       social: [
         {
+          icon: "star",
+          label: "ÆRIS",
+          href: "https://xarc.org/aeris/",
+        },
+        {
           icon: "github",
           label: "GitHub",
           href: "https://github.com/xarc/aeris",

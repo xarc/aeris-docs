@@ -61,6 +61,26 @@ Run the program step by step using the **Run One Step** button. For each instruc
       values: ["", "0x00000000", ""],
     },
   ]}
+  correctRows={[
+    { pc: "0x00400004", instruction: "slti t0 s0 3",   values: ["0x00000001", "", ""] },
+    { pc: "0x00400008", instruction: "beq t0 zero Exit",  values: ["", "", ""] },
+    { pc: "0x0040000C", instruction: "addi s1 s1 1",    values: ["", "", "0x00000001"] },
+    { pc: "0x00400010", instruction: "addi s0 s0 1",    values: ["", "0x00000001", ""] },
+    { pc: "0x00400014", instruction: "j Loop",      values: ["", "", ""] },
+    { pc: "0x00400004", instruction: "slti t0 s0 3",   values: ["0x00000001", "", ""] },
+    { pc: "0x00400008", instruction: "beq t0 zero Exit",  values: ["", "", ""] },
+    { pc: "0x0040000C", instruction: "addi s1 s1 1",    values: ["", "", "0x00000002"] },
+    { pc: "0x00400010", instruction: "addi s0 s0 1",    values: ["", "0x00000002", ""] },
+    { pc: "0x00400014", instruction: "j Loop",      values: ["", "", ""] },
+    { pc: "0x00400004", instruction: "slti t0 s0 3",   values: ["0x00000001", "", ""] },
+    { pc: "0x00400008", instruction: "beq t0 zero Exit",  values: ["", "", ""] },
+    { pc: "0x0040000C", instruction: "addi s1 s1 1",    values: ["", "", "0x00000003"] },
+    { pc: "0x00400010", instruction: "addi s0 s0 1",    values: ["", "0x00000003", ""] },
+    { pc: "0x00400014", instruction: "j Loop",      values: ["", "", ""] },
+    { pc: "0x00400004", instruction: "slti t0 s0 3",   values: ["0x00000000", "", ""] },
+    { pc: "0x00400008", instruction: "beq t0 zero Exit",  values: ["", "", ""] },
+    { pc: "0x00400018", instruction: "nop",             values: ["", "", ""] },
+  ]}
   totalRows={8}
 />
 

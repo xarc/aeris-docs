@@ -364,9 +364,9 @@ When termination occurs the simulator enters the **halted state** and execution 
 
 The simulation engine prioritizes:
 
-- **clarity** — instructions are executed in explicit steps
-- **correctness** — behavior matches the RV32I specification
-- **observability** — internal state is always visible to the UI
-- **modularity** — CPU, memory, and assembler are independent components
+- **clarity** - instructions are executed in explicit steps
+- **correctness** - behavior matches the RV32I specification
+- **observability** - internal state is always visible to the UI
+- **modularity** - CPU, memory, and assembler are independent components
 
 This design makes the simulator easier to understand, test, and extend.

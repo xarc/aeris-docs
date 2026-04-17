@@ -24,6 +24,7 @@ interface Props {
   pseudoInstructionColumn?: boolean;
   initialValues?: string[];
   prefilledRows?: PrefilledRow[];
+  correctRows?: PrefilledRow[];
   totalRows?: number;
   lang?: "pt" | "en";
   compact?: boolean;
@@ -37,6 +38,7 @@ const {
   pseudoInstructionColumn = false,
   initialValues,
   prefilledRows = [],
+  correctRows = [],
   totalRows = 7,
   lang = "pt",
   compact = false,
@@ -50,6 +52,7 @@ const translations = {
     after: "Após executar a instrução",
     pseudoInstruction: "Pseudoinstrução",
     addRow: "Adicionar linha",
+    check: "Verificar",
     savePDF: "Salvar como PDF",
     pdfNotice:
       "Dica: no diálogo de impressão, selecione o tamanho A2 para melhor resultado.",
@@ -61,6 +64,7 @@ const translations = {
     after: "After executing the instruction",
     pseudoInstruction: "Pseudo-instruction",
     addRow: "Add row",
+    check: "Check",
     savePDF: "Save as PDF",
     pdfNotice:
       "Tip: in the print dialog, select A2 paper size for best results.",
@@ -88,7 +92,7 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
 
   <h3>{labels.fillTable}</h3>
 
-  <form class="exercise-form">
+  <form class="exercise-form" data-pseudo={pseudoInstructionColumn ? "1" : "0"} data-correct={JSON.stringify(correctRows)}>
     <div class="table-wrapper">
       <table class={tableClass}>
         <thead>
@@ -218,6 +222,9 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
       <p class="pdf-notice">{labels.pdfNotice}</p>
       <div class="btn-row">
         <button type="button" class="btn-add-row">{labels.addRow}</button>
+        {correctRows.length > 0 && (
+          <button type="button" class="btn-check">{labels.check}</button>
+        )}
         <button type="button" class="btn-print" onclick="window.print()"
           >{labels.savePDF}</button
         >
@@ -238,7 +245,79 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
       newRow
         ?.querySelectorAll("input")
         .forEach((input) => ((input as HTMLInputElement).value = ""));
+      newRow?.querySelectorAll("td").forEach((td) => {
+        td.classList.remove("cell-correct", "cell-incorrect");
+      });
       tbody?.appendChild(newRow!);
+    });
+  });
+
+  function normalize(value: string): string {
+    return value.trim().toLowerCase().replace(/\s+/g, " ");
+  }
+
+  function markCell(td: Element, correct: boolean) {
+    td.classList.remove("cell-correct", "cell-incorrect");
+    td.classList.add(correct ? "cell-correct" : "cell-incorrect");
+  }
+
+  document.querySelectorAll(".btn-check").forEach((button) => {
+    button.addEventListener("click", () => {
+      const form = button.closest("form") as HTMLFormElement;
+      const correctRows = JSON.parse(form.dataset.correct ?? "[]") as {
+        pc: string;
+        instruction: string;
+        values: string[];
+      }[];
+      const hasPseudo = form.dataset.pseudo === "1";
+      const valueOffset = hasPseudo ? 3 : 2;
+      const tbody = form.querySelector("tbody");
+
+      const allInputRows = Array.from(tbody?.querySelectorAll("tr") ?? []).filter(
+        (row) => row.querySelector("input")
+      );
+
+      const minRows = correctRows.length;
+      const filledInputRows = allInputRows.filter(
+        (row) => ((row.querySelector("input") as HTMLInputElement)?.value.trim() ?? "") !== ""
+      );
+
+      const emptyRows = allInputRows.filter((row) =>
+        Array.from(row.querySelectorAll("input")).every(
+          (input) => (input as HTMLInputElement).value.trim() === ""
+        )
+      );
+      const emptyToKeep = Math.max(0, minRows - filledInputRows.length);
+      emptyRows.slice(emptyToKeep).forEach((row) => row.remove());
+
+      if (filledInputRows.length < minRows) return;
+
+      // Clear previous marks
+      allInputRows.forEach((row) => {
+        row.querySelectorAll("td").forEach((td) => {
+          td.classList.remove("cell-correct", "cell-incorrect");
+        });
+      });
+
+      allInputRows.forEach((row, index) => {
+        const correct = correctRows[index];
+        if (!correct) return;
+
+        const inputs = Array.from(row.querySelectorAll("input")) as HTMLInputElement[];
+
+        const pcCorrect = normalize(inputs[0]?.value ?? "") === normalize(correct.pc);
+        markCell(inputs[0]!.closest("td")!, pcCorrect);
+
+        const instrCorrect = normalize(inputs[1]?.value ?? "") === normalize(correct.instruction);
+        markCell(inputs[1]!.closest("td")!, instrCorrect);
+
+        correct.values.forEach((expected, valIndex) => {
+          if (expected === "") return;
+          const input = inputs[valueOffset + valIndex];
+          if (!input) return;
+          markCell(input.closest("td")!, normalize(input.value) === normalize(expected));
+        });
+      });
     });
   });
 </script>
@@ -363,6 +442,7 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
   }
 
   .btn-add-row,
+  .btn-check,
   .btn-print {
     margin: 0;
     padding: 0 24px;
@@ -386,6 +466,20 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
     color: white;
   }
 
+  .btn-check {
+    background-color: transparent;
+    color: #16a34a;
+    border: 1.5px solid #16a34a;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .btn-check:hover {
+    background-color: #16a34a;
+    color: white;
+  }
+
   .btn-print {
     background-color: var(--sl-color-accent, #e35c1f);
     color: white;
@@ -395,6 +489,16 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
 
   .btn-print:hover {
     opacity: 0.85;
+  }
+
+  .cell-correct {
+    outline: 2px solid #16a34a;
+    outline-offset: -2px;
+  }
+
+  .cell-incorrect {
+    outline: 2px solid #dc2626;
+    outline-offset: -2px;
   }
 
   @media print {
