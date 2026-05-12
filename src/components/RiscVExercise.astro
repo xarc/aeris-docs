@@ -338,6 +338,99 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
       });
     });
   });
+
+  const rowOverlay = (() => {
+    const element = document.createElement("div");
+    element.className = "row-actions-overlay";
+    element.innerHTML =
+      '<button class="row-action-btn row-action-add" title="Inserir linha aqui">+</button>' +
+      '<button class="row-action-btn row-action-remove" title="Remover linha">&times;</button>';
+    document.body.appendChild(element);
+    return element;
+  })();
+
+  let activeRow: HTMLTableRowElement | null = null;
+  let hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function positionRowOverlay(row: HTMLTableRowElement) {
+    const rect = row.getBoundingClientRect();
+    rowOverlay.style.top = `${rect.top + rect.height / 2}px`;
+    rowOverlay.style.left = `${rect.left - 4}px`;
+    rowOverlay.style.transform = "translate(-100%, -50%)";
+    rowOverlay.style.display = "flex";
+  }
+
+  function cancelRowHide() {
+    if (hideTimer !== null) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+  }
+
+  function scheduleRowHide() {
+    cancelRowHide();
+    hideTimer = setTimeout(() => {
+      rowOverlay.style.display = "none";
+      activeRow = null;
+    }, 150);
+  }
+
+  rowOverlay.addEventListener("mouseenter", cancelRowHide);
+  rowOverlay.addEventListener("mouseleave", scheduleRowHide);
+
+  window.addEventListener("scroll", () => {
+    if (activeRow) {
+      positionRowOverlay(activeRow);
+    }
+  }, { passive: true });
+
+  document.querySelectorAll<HTMLElement>(".exec-table tbody").forEach((tbody) => {
+    tbody.addEventListener("mouseover", (e) => {
+      const row = (e.target as HTMLElement).closest("tr") as HTMLTableRowElement | null;
+      if (!row?.querySelector("input")) {
+        return;
+      }
+      cancelRowHide();
+      activeRow = row;
+      positionRowOverlay(row);
+    });
+    tbody.addEventListener("mouseleave", scheduleRowHide);
+  });
+
+  function makeEmptyRow(tbody: HTMLElement): HTMLTableRowElement {
+    const inputRows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>("tr")).filter(
+      (r) => r.querySelector("input")
+    );
+    const last = inputRows[inputRows.length - 1]!;
+    const newRow = last.cloneNode(true) as HTMLTableRowElement;
+    newRow.querySelectorAll("input").forEach((inp) => ((inp as HTMLInputElement).value = ""));
+    newRow.querySelectorAll("td").forEach((td) => td.classList.remove("cell-correct", "cell-incorrect"));
+    return newRow;
+  }
+
+  (rowOverlay.querySelector(".row-action-add") as HTMLButtonElement).addEventListener("click", () => {
+    if (!activeRow) {
+      return;
+    }
+    const tbody = activeRow.closest("tbody") as HTMLElement;
+    const newRow = makeEmptyRow(tbody);
+    activeRow.after(newRow);
+    positionRowOverlay(activeRow);
+  });
+
+  (rowOverlay.querySelector(".row-action-remove") as HTMLButtonElement).addEventListener("click", () => {
+    if (!activeRow) {
+      return;
+    }
+    const tbody = activeRow.closest("tbody") as HTMLElement;
+    const inputRows = Array.from(tbody.querySelectorAll("tr")).filter((r) => r.querySelector("input"));
+    if (inputRows.length <= 1) {
+      return;
+    }
+    activeRow.remove();
+    rowOverlay.style.display = "none";
+    activeRow = null;
+  });
 </script>
 
 <style>
@@ -546,6 +639,61 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
     .exec-table td,
     .exec-table th {
       padding: 5px 4px;
+    }
+  }
+</style>
+
+<style is:global>
+  .row-actions-overlay {
+    position: fixed;
+    display: none;
+    flex-direction: column;
+    gap: 3px;
+    z-index: 9999;
+    pointer-events: auto;
+  }
+
+  .row-action-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1.5px solid;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-family: inherit;
+    background: var(--sl-color-bg, #fff);
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .row-action-add {
+    color: #16a34a;
+    border-color: #16a34a;
+  }
+
+  .row-action-add:hover {
+    background: #16a34a;
+    color: #fff;
+  }
+
+  .row-action-remove {
+    color: #dc2626;
+    border-color: #dc2626;
+  }
+
+  .row-action-remove:hover {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  @media print {
+    .row-actions-overlay {
+      display: none !important;
     }
   }
 </style>
