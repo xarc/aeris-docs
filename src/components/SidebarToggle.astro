@@ -1,0 +1,24 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+---
+<Default {...Astro.props}><slot /></Default>
+
+<script>
+  const btn = document.createElement('button');
+  btn.id = 'sidebar-toggle-btn';
+  btn.setAttribute('aria-label', 'Toggle sidebar');
+  btn.textContent = '‹';
+  document.body.appendChild(btn);
+
+  const hidden = localStorage.getItem('sl-sidebar-hidden') === 'true';
+  if (hidden) {
+    document.documentElement.classList.add('sidebar-hidden');
+    btn.textContent = '›';
+  }
+
+  btn.addEventListener('click', () => {
+    const isHidden = document.documentElement.classList.toggle('sidebar-hidden');
+    btn.textContent = isHidden ? '›' : '‹';
+    localStorage.setItem('sl-sidebar-hidden', String(isHidden));
+  });
+</script>

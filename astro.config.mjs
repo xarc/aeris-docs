@@ -12,6 +12,9 @@ export default defineConfig({
       title: "ÆRIS DOCS",
       customCss: ["./src/styles/theme.css"],
       tableOfContents: false,
+      components: {
+        Head: './src/components/SidebarToggle.astro',
+      },
 
       locales: {
         root: {

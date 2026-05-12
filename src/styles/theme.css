@@ -16,3 +16,56 @@
 .sl-markdown-content .table-wrapper {
   overflow-x: visible;
 }
+
+/* Sidebar toggle */
+@media (min-width: 50rem) {
+  html.sidebar-hidden .sidebar-pane {
+    width: 0 !important;
+    overflow: hidden;
+    border: none;
+  }
+
+  html.sidebar-hidden [data-has-sidebar] {
+    --sl-content-inline-start: 0rem;
+  }
+
+  html.sidebar-hidden .sidebar-pane {
+    transition: width 0.2s ease;
+  }
+
+  .sidebar-pane {
+    transition: width 0.2s ease;
+  }
+}
+
+#sidebar-toggle-btn {
+  position: fixed;
+  top: 50vh;
+  left: var(--sl-sidebar-width);
+  transform: translateY(-50%) translateX(-50%);
+  z-index: 9999;
+  background: var(--sl-color-bg-sidebar);
+  border: 1px solid var(--sl-color-hairline-shade);
+  border-radius: 0 4px 4px 0;
+  width: 1.25rem;
+  height: 3rem;
+  cursor: pointer;
+  color: var(--sl-color-text);
+  font-size: 0.9rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: left 0.2s ease;
+}
+
+html.sidebar-hidden #sidebar-toggle-btn {
+  left: 0;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 50rem) {
+  #sidebar-toggle-btn {
+    display: flex;
+  }
+}

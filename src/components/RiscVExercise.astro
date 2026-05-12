@@ -248,6 +248,7 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
         >
       </div>
     </div>
+    <p class="check-warning" style="display:none"></p>
   </form>
 </div>
 
@@ -290,52 +291,58 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
       const hasPseudo = form.dataset.pseudo === "1";
       const valueOffset = hasPseudo ? 3 : 2;
       const tbody = form.querySelector("tbody");
+      const warning = form.nextElementSibling as HTMLElement;
 
       const allInputRows = Array.from(tbody?.querySelectorAll("tr") ?? []).filter(
         (row) => row.querySelector("input")
       );
 
-      const minRows = correctRows.length;
       const filledInputRows = allInputRows.filter(
-        (row) => ((row.querySelector("input") as HTMLInputElement)?.value.trim() ?? "") !== ""
-      );
-
-      const emptyRows = allInputRows.filter((row) =>
-        Array.from(row.querySelectorAll("input")).every(
-          (input) => (input as HTMLInputElement).value.trim() === ""
+        (row) => Array.from(row.querySelectorAll("input")).some(
+          (input) => (input as HTMLInputElement).value.trim() !== ""
         )
       );
-      const emptyToKeep = Math.max(0, minRows - filledInputRows.length);
-      emptyRows.slice(emptyToKeep).forEach((row) => row.remove());
 
-      if (filledInputRows.length < minRows) return;
-
-      // Clear previous marks
       allInputRows.forEach((row) => {
         row.querySelectorAll("td").forEach((td) => {
           td.classList.remove("cell-correct", "cell-incorrect");
         });
       });
 
+      let filledCount = 0;
       allInputRows.forEach((row, index) => {
         const correct = correctRows[index];
         if (!correct) return;
 
         const inputs = Array.from(row.querySelectorAll("input")) as HTMLInputElement[];
+        const rowHasAny = inputs.some((inp) => inp.value.trim() !== "");
+        if (rowHasAny) filledCount++;
 
-        const pcCorrect = normalize(inputs[0]?.value ?? "") === normalize(correct.pc);
-        markCell(inputs[0]!.closest("td")!, pcCorrect);
-
-        const instrCorrect = normalize(inputs[1]?.value ?? "") === normalize(correct.instruction);
-        markCell(inputs[1]!.closest("td")!, instrCorrect);
-
+        if (inputs[0]?.value.trim()) {
+          markCell(inputs[0]!.closest("td")!, normalize(inputs[0].value) === normalize(correct.pc));
+        }
+        if (inputs[1]?.value.trim()) {
+          markCell(inputs[1]!.closest("td")!, normalize(inputs[1].value) === normalize(correct.instruction));
+        }
         correct.values.forEach((expected, valIndex) => {
           if (expected === "") return;
           const input = inputs[valueOffset + valIndex];
-          if (!input) return;
+          if (!input?.value.trim()) return;
           markCell(input.closest("td")!, normalize(input.value) === normalize(expected));
         });
       });
+
+      const missing = correctRows.length - filledCount;
+      if (warning) {
+        if (missing > 0) {
+          warning.textContent = missing === 1
+            ? "⚠ Falta 1 linha para completar o exercício."
+            : `⚠ Faltam ${missing} linhas para completar o exercício.`;
+          warning.style.display = "block";
+        } else {
+          warning.style.display = "none";
+        }
+      }
     });
   });
 
@@ -515,6 +522,8 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
 
   .col-initial {
     font-weight: bold;
+    font-family: monospace;
+    font-size: 13px;
     color: var(--sl-color-gray-2, #555);
   }
 
@@ -610,6 +619,12 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
 
   .btn-print:hover {
     opacity: 0.85;
+  }
+
+  .check-warning {
+    margin-top: 0.5rem;
+    font-size: 13px;
+    color: #b45309;
   }
 
   .cell-correct {
