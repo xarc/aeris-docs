@@ -56,6 +56,12 @@ const translations = {
     savePDF: "Salvar como PDF",
     pdfNotice:
       "Dica: no diálogo de impressão, selecione o tamanho A2 para melhor resultado.",
+    hintFill:
+      "Preencha o <strong>PC</strong> com o endereço da instrução e copie a coluna <strong>Instrução</strong> com o conteúdo da coluna <strong>Source</strong> do simulador. Preencha apenas os campos que forem modificados.",
+    hintPseudo:
+      "Se a instrução corresponder a uma pseudoinstrução, preencha a coluna <strong>Pseudoinstrução</strong>. Caso contrário, deixe-a em branco.",
+    hintAddRow:
+      "Se precisar de mais linhas, clique em <strong>Adicionar linha</strong>. A verificação só é realizada quando todas as linhas estiverem preenchidas, se nada aparecer ao clicar em <strong>Verificar</strong>, significa que ainda há linhas em branco.",
   },
   en: {
     assemblyCode: "Assembly Code",
@@ -68,6 +74,12 @@ const translations = {
     savePDF: "Save as PDF",
     pdfNotice:
       "Tip: in the print dialog, select A2 paper size for best results.",
+    hintFill:
+      "Fill in the <strong>PC</strong> with the instruction address and copy the <strong>Instruction</strong> column exactly as it appears in the simulator. Only fill in fields that are modified.",
+    hintPseudo:
+      "If the instruction corresponds to a pseudo-instruction, fill in the <strong>Pseudo-instruction</strong> column. Otherwise, leave it blank.",
+    hintAddRow:
+      "If you need more rows, click <strong>Add row</strong>. Verification only runs when all rows are filled, if nothing appears after clicking <strong>Check</strong>, it means there are still empty rows.",
   },
 };
 
@@ -91,6 +103,12 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
   }
 
   <h3>{labels.fillTable}</h3>
+
+  <ul class="table-hints">
+    <li set:html={labels.hintFill} />
+    {pseudoInstructionColumn && <li set:html={labels.hintPseudo} />}
+    <li set:html={labels.hintAddRow} />
+  </ul>
 
   <form class="exercise-form" data-pseudo={pseudoInstructionColumn ? "1" : "0"} data-correct={JSON.stringify(correctRows)}>
     <div class="table-wrapper">
@@ -151,7 +169,7 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
                 {initialValues.slice(0, registerCount).map((value) => (
                   <td class="col-initial">{value}</td>
                 ))}
-                {memorySegments.map((segmentment, index) => (
+                {memorySegments.map((_, index) => (
                   <>
                     <td class="col-initial">
                       {initialValues[registerCount + index] ?? ""}
@@ -173,7 +191,7 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
                 {row.values.slice(0, registerCount).map((value) => (
                   <td class="col-filled">{value}</td>
                 ))}
-                {memorySegments.map((segmentment, index) => (
+                {memorySegments.map((_, index) => (
                   <>
                     <td class="col-filled">
                       {row.values[registerCount + index] ?? ""}
@@ -341,6 +359,16 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
     font-family: monospace;
     font-size: 14px;
     margin-bottom: 1.5rem;
+  }
+
+  .table-hints {
+    font-size: 13px;
+    color: var(--sl-color-gray-2, #555);
+    margin: 0 0 1rem 1.25rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
   }
 
   .table-wrapper {
