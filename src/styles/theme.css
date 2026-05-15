@@ -65,7 +65,7 @@ html.sidebar-hidden #sidebar-toggle-btn {
 }
 
 @media (min-width: 50rem) {
-  #sidebar-toggle-btn {
+  html[data-has-sidebar] #sidebar-toggle-btn {
     display: flex;
   }
 }
