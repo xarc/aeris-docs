@@ -55,6 +55,16 @@ O **data segment** exibe o conteúdo da memória do simulador.
 
 Como a memória do sistema é muito grande, o painel fornece ferramentas para facilitar a navegação entre diferentes regiões.
 
+### Destaque de Alterações na Memória
+
+Sempre que uma posição de memória é modificada durante a execução (por exemplo, por uma instrução `sw`), o simulador aplica uma **cor de fundo diferente** nessa posição, da mesma forma que faz com os registradores e com a instrução atual no text segment.
+
+Isso facilita identificar quais endereços de memória foram afetados pela última instrução executada.
+
+![Posição de memória destacada após sw](../../assets/execution/memory-highlight.png)
+
+---
+
 ### Seleção de Regiões da Memória
 
 No topo do painel existe um **seletor de regiões de memória**, que permite navegar diretamente para partes importantes da memória do programa.

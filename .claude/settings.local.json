@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\eduar\\\\univali\\\\code\\\\aeris-docs\" -Force | Select-Object Name, @{Name=\"Type\"; Expression={if\\($_.PSIsContainer\\) {\"DIR\"} else {\"FILE\"}}} | Sort-Object Name)"
+    ]
+  }
+}

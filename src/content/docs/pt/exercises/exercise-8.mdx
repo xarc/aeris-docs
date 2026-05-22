@@ -56,6 +56,10 @@ main:
     nop                   # resultado em a0
 ```
 
+:::note
+As instruções `j`, `jr` e `nop` são **pseudo-instruções**. Nessas linhas, copie o valor da coluna **Basic** (a instrução real) na coluna **Instrução** e o valor da coluna **Source** na coluna **Pseudoinstrução**.
+:::
+
 ## Execução Passo a Passo
 
 Execute o programa passo a passo clicando no botão **Run One Step**. A cada instrução, preencha a tabela abaixo cada vez que o valor de um registrador ou posição da memória for modificado.
@@ -125,8 +129,8 @@ Execute o programa passo a passo clicando no botão **Run One Step**. A cada ins
     { pc: "0x00400028", instruction: "lw t0 4(sp)",     values: ["", "", "", "", "", "", "", "0x00000002", "", "", "", "", ""] },
     { pc: "0x0040002C", instruction: "lw t1 8(sp)",     values: ["", "", "", "", "", "", "", "", "0x00000001", "", "", "", ""] },
     { pc: "0x00400030", instruction: "addi sp sp 12",   values: ["", "", "", "", "", "", "0x7FFFEFFC", "", "", "", "", "", ""] },
-    { pc: "0x00400034", instruction: "jr ra",    values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
-    { pc: "0x00400058", instruction: "nop",             values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400034", instruction: "jalr x0 x1 0", pseudoInstruction: "jr ra", values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400058", instruction: "addi x0 x0 0", pseudoInstruction: "nop",    values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
   ]}
   totalRows={12}
 />

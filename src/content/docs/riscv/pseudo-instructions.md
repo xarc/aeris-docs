@@ -9,6 +9,16 @@ During the assembly process, each pseudo-instruction is automatically expanded i
 
 In the **ÆRIS** simulator, this expansion occurs during the code analysis phase, through the `PseudoExpander` component. After expansion, only real instructions remain in the program before machine code generation.
 
+---
+
+## Visual Identification in the Simulator
+
+In the **Text Segment**, lines that originated from a pseudo-instruction are displayed in **orange**.
+
+Hovering the mouse over one of these lines shows a tooltip indicating that the instruction is a pseudo-instruction.
+
+![Pseudo-instruction highlighted in the text segment](../assets/pseudo-instruction-highlight.png)
+
 # Movement Pseudo Instructions
 
 | Pseudo       | Description                                  |

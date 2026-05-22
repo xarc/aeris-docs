@@ -9,6 +9,16 @@ Durante o processo de montagem, cada pseudo-instrução é expandida automaticam
 
 No simulador **ÆRIS**, essa expansão ocorre durante a fase de análise do código, através do componente `PseudoExpander`. Após a expansão, apenas instruções reais permanecem no programa antes da geração do código de máquina.
 
+---
+
+## Identificação Visual no Simulador
+
+No **Text Segment**, as linhas que se originaram de uma pseudo-instrução são exibidas na cor **laranja**.
+
+Ao passar o mouse sobre uma dessas linhas, um tooltip indica que a instrução se trata de uma pseudo-instrução.
+
+![Pseudo-instrução destacada no text segment](../../assets/pseudo-instruction-highlight.png)
+
 # Pseudo Instruções de Movimento
 
 | Pseudo       | Descrição                                  |

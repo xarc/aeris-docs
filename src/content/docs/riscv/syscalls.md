@@ -38,9 +38,10 @@ This prints the number `42`.
 | Code | Name | Description |
 |------|------|------|
 | 1 | PrintInt | Prints the integer in `a0` |
-| 2 | PrintString | Prints a string from the address in `a0` |
-| 3 | ReadInt | Reads an integer from the console |
-| 4 | ReadString | Reads a string from the console |
+| 4 | PrintString | Prints a string from the address in `a0` |
+| 5 | ReadInt | Reads an integer from the console |
+| 8 | ReadString | Reads a string from the console |
+| 10 | Exit | Stops execution and prints `-- program is finished --` |
 
 ---
 
@@ -64,7 +65,7 @@ Output:
 
 ---
 
-# PrintString (2)
+# PrintString (4)
 
 Prints a sequence of characters from the address in `a0`.
 
@@ -78,21 +79,21 @@ msg: .ascii "Hello"
 
 .text
 main:
-    li a7, 2
+    li a7, 4
     la a0, msg
     ecall
 ```
 
 ---
 
-# ReadInt (3)
+# ReadInt (5)
 
 Reads an integer from the user.
 
 Example:
 
 ```asm
-li a7, 3
+li a7, 5
 ecall
 ```
 
@@ -104,7 +105,7 @@ Behavior:
 
 ---
 
-# ReadString (4)
+# ReadString (8)
 
 Reads a sequence of characters from the user and stores it in memory.
 
@@ -123,7 +124,7 @@ buffer: .word 0,0,0,0,0,0,0,0
 
 .text
 main:
-    li a7, 4
+    li a7, 8
     la a0, buffer
     li a1, 32
     ecall
@@ -134,3 +135,21 @@ Behavior:
 - The user types a string
 - The characters are written in memory starting at `a0`
 - At most `a1` bytes are stored
+
+---
+
+# Exit (10)
+
+Stops program execution and prints `-- program is finished --` in the console.
+
+Example:
+
+```asm
+li a7, 10
+ecall
+```
+
+Behavior:
+
+- The simulator immediately halts execution
+- The message `-- program is finished --` is displayed in the console

@@ -38,12 +38,17 @@ Exit:
     nop                  # end of program
 ```
 
+:::note
+The `j` and `nop` instructions are **pseudo-instructions**. For these rows, copy the **Basic** column value (the real instruction) into the **Instruction** column and the **Source** column value into the **Pseudo-instruction** column.
+:::
+
 ## Step-by-step Execution
 
 Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register is modified.
 
 <RiscVExercise
   lang="en"
+  pseudoInstructionColumn={true}
   registers={[
     { name: "x5", alias: "t0" },
     { name: "x8", alias: "s0 (i)" },
@@ -58,6 +63,7 @@ Run the program step by step using the **Run One Step** button. For each instruc
     {
       pc: "0x00400000",
       instruction: "addi s0 zero 0",
+      pseudoInstruction: "",
       values: ["", "0x00000000", ""],
     },
   ]}
@@ -66,20 +72,20 @@ Run the program step by step using the **Run One Step** button. For each instruc
     { pc: "0x00400008", instruction: "beq t0 zero Exit",  values: ["", "", ""] },
     { pc: "0x0040000C", instruction: "addi s1 s1 1",    values: ["", "", "0x00000001"] },
     { pc: "0x00400010", instruction: "addi s0 s0 1",    values: ["", "0x00000001", ""] },
-    { pc: "0x00400014", instruction: "j Loop",      values: ["", "", ""] },
+    { pc: "0x00400014", instruction: "jal x0 -16", pseudoInstruction: "j Loop", values: ["", "", ""] },
     { pc: "0x00400004", instruction: "slti t0 s0 3",   values: ["0x00000001", "", ""] },
     { pc: "0x00400008", instruction: "beq t0 zero Exit",  values: ["", "", ""] },
     { pc: "0x0040000C", instruction: "addi s1 s1 1",    values: ["", "", "0x00000002"] },
     { pc: "0x00400010", instruction: "addi s0 s0 1",    values: ["", "0x00000002", ""] },
-    { pc: "0x00400014", instruction: "j Loop",      values: ["", "", ""] },
+    { pc: "0x00400014", instruction: "jal x0 -16", pseudoInstruction: "j Loop", values: ["", "", ""] },
     { pc: "0x00400004", instruction: "slti t0 s0 3",   values: ["0x00000001", "", ""] },
     { pc: "0x00400008", instruction: "beq t0 zero Exit",  values: ["", "", ""] },
     { pc: "0x0040000C", instruction: "addi s1 s1 1",    values: ["", "", "0x00000003"] },
     { pc: "0x00400010", instruction: "addi s0 s0 1",    values: ["", "0x00000003", ""] },
-    { pc: "0x00400014", instruction: "j Loop",      values: ["", "", ""] },
+    { pc: "0x00400014", instruction: "jal x0 -16", pseudoInstruction: "j Loop", values: ["", "", ""] },
     { pc: "0x00400004", instruction: "slti t0 s0 3",   values: ["0x00000000", "", ""] },
     { pc: "0x00400008", instruction: "beq t0 zero Exit",  values: ["", "", ""] },
-    { pc: "0x00400018", instruction: "nop",             values: ["", "", ""] },
+    { pc: "0x00400018", instruction: "addi x0 x0 0", pseudoInstruction: "nop", values: ["", "", ""] },
   ]}
   totalRows={8}
 />

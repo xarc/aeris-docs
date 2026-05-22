@@ -38,9 +38,10 @@ Isso imprime o número `42`.
 | Código | Nome | Descrição |
 |------|------|------|
 | 1 | PrintInt | Imprime o inteiro em `a0` |
-| 2 | PrintString | Imprime string a partir do endereço em `a0` |
-| 3 | ReadInt | Lê um inteiro do console |
-| 4 | ReadString | Lê uma string do console |
+| 4 | PrintString | Imprime string a partir do endereço em `a0` |
+| 5 | ReadInt | Lê um inteiro do console |
+| 8 | ReadString | Lê uma string do console |
+| 10 | Exit | Para a execução e imprime `-- program is finished --` |
 
 ---
 
@@ -64,7 +65,7 @@ Saída:
 
 ---
 
-# PrintString (2)
+# PrintString (4)
 
 Imprime uma sequência de caracteres a partir do endereço em `a0`.
 
@@ -78,21 +79,21 @@ msg: .ascii "Hello"
 
 .text
 main:
-    li a7, 2
+    li a7, 4
     la a0, msg
     ecall
 ```
 
 ---
 
-# ReadInt (3)
+# ReadInt (5)
 
 Lê um número inteiro do usuário.
 
 Exemplo:
 
 ```asm
-li a7, 3
+li a7, 5
 ecall
 ```
 
@@ -104,7 +105,7 @@ Comportamento:
 
 ---
 
-# ReadString (4)
+# ReadString (8)
 
 Lê uma sequência de caracteres do usuário e armazena na memória.
 
@@ -123,7 +124,7 @@ buffer: .word 0,0,0,0,0,0,0,0
 
 .text
 main:
-    li a7, 4
+    li a7, 8
     la a0, buffer
     li a1, 32
     ecall
@@ -134,4 +135,22 @@ Comportamento:
 - O usuário digita uma string
 - Os caracteres são escritos na memória a partir de `a0`
 - No máximo `a1` bytes são armazenados
+
+---
+
+# Exit (10)
+
+Para a execução do programa e imprime `-- program is finished --` no console.
+
+Exemplo:
+
+```asm
+li a7, 10
+ecall
+```
+
+Comportamento:
+
+- O simulador interrompe a execução imediatamente
+- A mensagem `-- program is finished --` é exibida no console
 

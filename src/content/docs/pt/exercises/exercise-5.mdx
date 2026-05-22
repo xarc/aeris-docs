@@ -47,6 +47,10 @@ Exit:
     nop                     # fim do laço
 ```
 
+:::note
+As instruções `j` e `nop` são **pseudo-instruções**. Nessas linhas, copie o valor da coluna **Basic** (a instrução real) na coluna **Instrução** e o valor da coluna **Source** na coluna **Pseudoinstrução**.
+:::
+
 ## Execução Passo a Passo
 
 Execute o programa passo a passo clicando no botão **Run One Step**. A cada instrução, preencha a tabela abaixo cada vez que o valor de um registrador for modificado.
@@ -91,20 +95,20 @@ Execute o programa passo a passo clicando no botão **Run One Step**. A cada ins
     { pc: "0x0040001C", instruction: "lw t0 0(t1)",     values: ["0x00000003", "", "", "", ""] },
     { pc: "0x00400020", instruction: "bne t0 s5 Exit",  values: ["", "", "", "", ""] },
     { pc: "0x00400024", instruction: "addi s3 s3 1",    values: ["", "", "0x00000001", "", ""] },
-    { pc: "0x00400028", instruction: "j Loop",          values: ["", "", "", "", ""] },
+    { pc: "0x00400028", instruction: "jal x0 -24", pseudoInstruction: "j Loop", values: ["", "", "", "", ""] },
     { pc: "0x00400010", instruction: "add t1 s3 s3",    values: ["", "0x00000002", "", "", ""] },
     { pc: "0x00400014", instruction: "add t1 t1 t1",    values: ["", "0x00000004", "", "", ""] },
     { pc: "0x00400018", instruction: "add t1 t1 s6",    values: ["", "0x10010004", "", "", ""] },
     { pc: "0x0040001C", instruction: "lw t0 0(t1)",     values: ["0x00000003", "", "", "", ""] },
     { pc: "0x00400020", instruction: "bne t0 s5 Exit",  values: ["", "", "", "", ""] },
     { pc: "0x00400024", instruction: "addi s3 s3 1",    values: ["", "", "0x00000002", "", ""] },
-    { pc: "0x00400028", instruction: "j Loop",          values: ["", "", "", "", ""] },
+    { pc: "0x00400028", instruction: "jal x0 -24", pseudoInstruction: "j Loop", values: ["", "", "", "", ""] },
     { pc: "0x00400010", instruction: "add t1 s3 s3",    values: ["", "0x00000004", "", "", ""] },
     { pc: "0x00400014", instruction: "add t1 t1 t1",    values: ["", "0x00000008", "", "", ""] },
     { pc: "0x00400018", instruction: "add t1 t1 s6",    values: ["", "0x10010008", "", "", ""] },
     { pc: "0x0040001C", instruction: "lw t0 0(t1)",     values: ["0x00000001", "", "", "", ""] },
     { pc: "0x00400020", instruction: "bne t0 s5 Exit",  values: ["", "", "", "", ""] },
-    { pc: "0x0040002C", instruction: "nop",             values: ["", "", "", "", ""] },
+    { pc: "0x0040002C", instruction: "addi x0 x0 0", pseudoInstruction: "nop", values: ["", "", "", "", ""] },
   ]}
   totalRows={8}
 />

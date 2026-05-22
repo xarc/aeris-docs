@@ -56,6 +56,16 @@ The **data segment** displays the contents of the simulator memory.
 
 Since the system memory is very large, the panel provides tools to facilitate navigation between different memory regions.
 
+### Memory Change Highlighting
+
+Whenever a memory position is modified during execution (for example, by a `sw` instruction), the simulator highlights that position with a **different background color**, the same way it does for registers and the current instruction in the text segment.
+
+This makes it easy to identify which memory addresses were affected by the last executed instruction.
+
+![Highlighted memory position after sw](../assets/execution/memory-highlight.png)
+
+---
+
 ### Memory Region Selection
 
 At the top of the panel there is a **memory region selector**, which allows direct navigation to important parts of the program memory.

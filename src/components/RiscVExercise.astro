@@ -59,7 +59,7 @@ const translations = {
     hintFill:
       "Preencha o <strong>PC</strong> com o endereço da instrução e copie a coluna <strong>Instrução</strong> com o conteúdo da coluna <strong>Source</strong> do simulador. Preencha apenas os campos que forem modificados.",
     hintPseudo:
-      "Se a instrução corresponder a uma pseudoinstrução, preencha a coluna <strong>Pseudoinstrução</strong>. Caso contrário, deixe-a em branco.",
+      "Para pseudo-instruções, o simulador exibe a instrução real na coluna <strong>Basic</strong> e a forma original na coluna <strong>Source</strong>. Copie o valor <strong>Basic</strong> na coluna <strong>Instrução</strong> e o valor <strong>Source</strong> na coluna <strong>Pseudoinstrução</strong>. Deixe a coluna de pseudoinstrução em branco para instruções reais.",
     hintAddRow:
       "Se precisar de mais linhas, clique em <strong>Adicionar linha</strong>. A verificação só é realizada quando todas as linhas estiverem preenchidas, se nada aparecer ao clicar em <strong>Verificar</strong>, significa que ainda há linhas em branco.",
   },
@@ -77,7 +77,7 @@ const translations = {
     hintFill:
       "Fill in the <strong>PC</strong> with the instruction address and copy the <strong>Instruction</strong> column exactly as it appears in the simulator. Only fill in fields that are modified.",
     hintPseudo:
-      "If the instruction corresponds to a pseudo-instruction, fill in the <strong>Pseudo-instruction</strong> column. Otherwise, leave it blank.",
+      "For pseudo-instructions, the simulator shows the real instruction in the <strong>Basic</strong> column and the original form in the <strong>Source</strong> column. Copy the <strong>Basic</strong> value into the <strong>Instruction</strong> column and the <strong>Source</strong> value into the <strong>Pseudo-instruction</strong> column. Leave the pseudo column blank for non-pseudo instructions.",
     hintAddRow:
       "If you need more rows, click <strong>Add row</strong>. Verification only runs when all rows are filled, if nothing appears after clicking <strong>Check</strong>, it means there are still empty rows.",
   },
@@ -110,7 +110,11 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
     <li set:html={labels.hintAddRow} />
   </ul>
 
-  <form class="exercise-form" data-pseudo={pseudoInstructionColumn ? "1" : "0"} data-correct={JSON.stringify(correctRows)}>
+  <form
+    class="exercise-form"
+    data-pseudo={pseudoInstructionColumn ? "1" : "0"}
+    data-correct={JSON.stringify(correctRows)}
+  >
     <div class="table-wrapper">
       <table class={tableClass}>
         <thead>
@@ -240,15 +244,18 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
       <p class="pdf-notice">{labels.pdfNotice}</p>
       <div class="btn-row">
         <button type="button" class="btn-add-row">{labels.addRow}</button>
-        {correctRows.length > 0 && (
-          <button type="button" class="btn-check">{labels.check}</button>
-        )}
+        {
+          correctRows.length > 0 && (
+            <button type="button" class="btn-check">
+              {labels.check}
+            </button>
+          )
+        }
         <button type="button" class="btn-print" onclick="window.print()"
           >{labels.savePDF}</button
         >
       </div>
     </div>
-    <p class="check-warning" style="display:none"></p>
   </form>
 </div>
 
@@ -268,6 +275,7 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
         td.classList.remove("cell-correct", "cell-incorrect");
       });
       tbody?.appendChild(newRow!);
+      setTimeout(saveAll, 0);
     });
   });
 
@@ -286,22 +294,15 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
       const correctRows = JSON.parse(form.dataset.correct ?? "[]") as {
         pc: string;
         instruction: string;
+        pseudoInstruction?: string;
         values: string[];
       }[];
       const hasPseudo = form.dataset.pseudo === "1";
       const valueOffset = hasPseudo ? 3 : 2;
       const tbody = form.querySelector("tbody");
-      const warning = form.nextElementSibling as HTMLElement;
-
-      const allInputRows = Array.from(tbody?.querySelectorAll("tr") ?? []).filter(
-        (row) => row.querySelector("input")
-      );
-
-      const filledInputRows = allInputRows.filter(
-        (row) => Array.from(row.querySelectorAll("input")).some(
-          (input) => (input as HTMLInputElement).value.trim() !== ""
-        )
-      );
+      const allInputRows = Array.from(
+        tbody?.querySelectorAll("tr") ?? [],
+      ).filter((row) => row.querySelector("input"));
 
       allInputRows.forEach((row) => {
         row.querySelectorAll("td").forEach((td) => {
@@ -312,37 +313,48 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
       let filledCount = 0;
       allInputRows.forEach((row, index) => {
         const correct = correctRows[index];
-        if (!correct) return;
+        if (!correct) {
+          return;
+        }
 
-        const inputs = Array.from(row.querySelectorAll("input")) as HTMLInputElement[];
+        const inputs = Array.from(
+          row.querySelectorAll("input"),
+        ) as HTMLInputElement[];
         const rowHasAny = inputs.some((inp) => inp.value.trim() !== "");
         if (rowHasAny) filledCount++;
 
         if (inputs[0]?.value.trim()) {
-          markCell(inputs[0]!.closest("td")!, normalize(inputs[0].value) === normalize(correct.pc));
+          markCell(
+            inputs[0]!.closest("td")!,
+            normalize(inputs[0].value) === normalize(correct.pc),
+          );
         }
         if (inputs[1]?.value.trim()) {
-          markCell(inputs[1]!.closest("td")!, normalize(inputs[1].value) === normalize(correct.instruction));
+          markCell(
+            inputs[1]!.closest("td")!,
+            normalize(inputs[1].value) === normalize(correct.instruction),
+          );
+        }
+        if (hasPseudo && correct.pseudoInstruction && inputs[2]?.value.trim()) {
+          markCell(
+            inputs[2]!.closest("td")!,
+            normalize(inputs[2].value) === normalize(correct.pseudoInstruction),
+          );
         }
         correct.values.forEach((expected, valIndex) => {
-          if (expected === "") return;
+          if (expected === "") {
+            return;
+          }
           const input = inputs[valueOffset + valIndex];
-          if (!input?.value.trim()) return;
-          markCell(input.closest("td")!, normalize(input.value) === normalize(expected));
+          if (!input?.value.trim()) {
+            return;
+          }
+          markCell(
+            input.closest("td")!,
+            normalize(input.value) === normalize(expected),
+          );
         });
       });
-
-      const missing = correctRows.length - filledCount;
-      if (warning) {
-        if (missing > 0) {
-          warning.textContent = missing === 1
-            ? "⚠ Falta 1 linha para completar o exercício."
-            : `⚠ Faltam ${missing} linhas para completar o exercício.`;
-          warning.style.display = "block";
-        } else {
-          warning.style.display = "none";
-        }
-      }
     });
   });
 
@@ -385,37 +397,51 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
   rowOverlay.addEventListener("mouseenter", cancelRowHide);
   rowOverlay.addEventListener("mouseleave", scheduleRowHide);
 
-  window.addEventListener("scroll", () => {
-    if (activeRow) {
-      positionRowOverlay(activeRow);
-    }
-  }, { passive: true });
-
-  document.querySelectorAll<HTMLElement>(".exec-table tbody").forEach((tbody) => {
-    tbody.addEventListener("mouseover", (e) => {
-      const row = (e.target as HTMLElement).closest("tr") as HTMLTableRowElement | null;
-      if (!row?.querySelector("input")) {
-        return;
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (activeRow) {
+        positionRowOverlay(activeRow);
       }
-      cancelRowHide();
-      activeRow = row;
-      positionRowOverlay(row);
+    },
+    { passive: true },
+  );
+
+  document
+    .querySelectorAll<HTMLElement>(".exec-table tbody")
+    .forEach((tbody) => {
+      tbody.addEventListener("mouseover", (e) => {
+        const row = (e.target as HTMLElement).closest(
+          "tr",
+        ) as HTMLTableRowElement | null;
+        if (!row?.querySelector("input")) {
+          return;
+        }
+        cancelRowHide();
+        activeRow = row;
+        positionRowOverlay(row);
+      });
+      tbody.addEventListener("mouseleave", scheduleRowHide);
     });
-    tbody.addEventListener("mouseleave", scheduleRowHide);
-  });
 
   function makeEmptyRow(tbody: HTMLElement): HTMLTableRowElement {
-    const inputRows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>("tr")).filter(
-      (r) => r.querySelector("input")
-    );
+    const inputRows = Array.from(
+      tbody.querySelectorAll<HTMLTableRowElement>("tr"),
+    ).filter((r) => r.querySelector("input"));
     const last = inputRows[inputRows.length - 1]!;
     const newRow = last.cloneNode(true) as HTMLTableRowElement;
-    newRow.querySelectorAll("input").forEach((inp) => ((inp as HTMLInputElement).value = ""));
-    newRow.querySelectorAll("td").forEach((td) => td.classList.remove("cell-correct", "cell-incorrect"));
+    newRow
+      .querySelectorAll("input")
+      .forEach((inp) => ((inp as HTMLInputElement).value = ""));
+    newRow
+      .querySelectorAll("td")
+      .forEach((td) => td.classList.remove("cell-correct", "cell-incorrect"));
     return newRow;
   }
 
-  (rowOverlay.querySelector(".row-action-add") as HTMLButtonElement).addEventListener("click", () => {
+  (
+    rowOverlay.querySelector(".row-action-add") as HTMLButtonElement
+  ).addEventListener("click", () => {
     if (!activeRow) {
       return;
     }
@@ -423,21 +449,64 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
     const newRow = makeEmptyRow(tbody);
     activeRow.after(newRow);
     positionRowOverlay(activeRow);
+    setTimeout(saveAll, 0);
   });
 
-  (rowOverlay.querySelector(".row-action-remove") as HTMLButtonElement).addEventListener("click", () => {
+  (
+    rowOverlay.querySelector(".row-action-remove") as HTMLButtonElement
+  ).addEventListener("click", () => {
     if (!activeRow) {
       return;
     }
     const tbody = activeRow.closest("tbody") as HTMLElement;
-    const inputRows = Array.from(tbody.querySelectorAll("tr")).filter((r) => r.querySelector("input"));
+    const inputRows = Array.from(tbody.querySelectorAll("tr")).filter((r) =>
+      r.querySelector("input"),
+    );
     if (inputRows.length <= 1) {
       return;
     }
     activeRow.remove();
     rowOverlay.style.display = "none";
+    saveAll();
     activeRow = null;
   });
+
+  const persistKey = (i: number) => `riscv:${location.pathname}:${i}`;
+
+  function saveAll() {
+    document
+      .querySelectorAll<HTMLFormElement>(".exercise-form")
+      .forEach((form, i) => {
+        const inputs = Array.from(
+          form.querySelectorAll<HTMLInputElement>("tbody input[type='text']"),
+        );
+        localStorage.setItem(
+          persistKey(i),
+          JSON.stringify(inputs.map((inp) => inp.value)),
+        );
+      });
+  }
+
+  document
+    .querySelectorAll<HTMLFormElement>(".exercise-form")
+    .forEach((form, i) => {
+      const tbody = form.querySelector<HTMLElement>("tbody")!;
+      const values: string[] = JSON.parse(
+        localStorage.getItem(persistKey(i)) ?? "[]",
+      );
+      while (
+        form.querySelectorAll<HTMLInputElement>("tbody input[type='text']")
+          .length < values.length
+      ) {
+        tbody.appendChild(makeEmptyRow(tbody));
+      }
+      Array.from(
+        form.querySelectorAll<HTMLInputElement>("tbody input[type='text']"),
+      ).forEach((inp, idx) => {
+        inp.value = values[idx] ?? "";
+      });
+      form.addEventListener("input", saveAll);
+    });
 </script>
 
 <style>
@@ -621,12 +690,6 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
     opacity: 0.85;
   }
 
-  .check-warning {
-    margin-top: 0.5rem;
-    font-size: 13px;
-    color: #b45309;
-  }
-
   .cell-correct {
     outline: 2px solid #16a34a;
     outline-offset: -2px;
@@ -683,7 +746,9 @@ const tableClass = compact ? "exec-table compact" : "exec-table";
     padding: 0;
     font-family: inherit;
     background: var(--sl-color-bg, #fff);
-    transition: background-color 0.15s, color 0.15s;
+    transition:
+      background-color 0.15s,
+      color 0.15s;
   }
 
   .row-action-add {

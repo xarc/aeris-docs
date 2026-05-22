@@ -47,6 +47,10 @@ Exit:
     nop
 ```
 
+:::note
+The `j` and `nop` instructions are **pseudo-instructions**. For these rows, copy the **Basic** column value (the real instruction) into the **Instruction** column and the **Source** column value into the **Pseudo-instruction** column.
+:::
+
 ## Step-by-step Execution - Scenario 1 (i ≠ j)
 
 With the initial values `i = 1` and `j = 2`, the branch **is taken** and execution jumps to `Else`, computing `f = g - h`.
@@ -55,6 +59,7 @@ Run the program step by step using the **Run One Step** button. For each instruc
 
 <RiscVExercise
   lang="en"
+  pseudoInstructionColumn={true}
   registers={[
     { name: "x8",  alias: "s0" },
     { name: "x9",  alias: "s1" },
@@ -82,7 +87,7 @@ Run the program step by step using the **Run One Step** button. For each instruc
     { pc: "0x0040000C", instruction: "addi s4 zero 2",  values: ["", "", "", "", "0x00000002"] },
     { pc: "0x00400010", instruction: "bne s3 s4 Else",    values: ["", "", "", "", ""] },
     { pc: "0x0040001C", instruction: "sub s0 s1 s2",    values: ["0xFFFFFFF6", "", "", "", ""] },
-    { pc: "0x00400020", instruction: "nop",             values: ["", "", "", "", ""] },
+    { pc: "0x00400020", instruction: "addi x0 x0 0", pseudoInstruction: "nop", values: ["", "", "", "", ""] },
   ]}
   totalRows={6}
 />
@@ -99,6 +104,7 @@ Click **Reset** to reload the program, then run it step by step again. With `i =
 
 <RiscVExercise
   lang="en"
+  pseudoInstructionColumn={true}
   registers={[
     { name: "x8",  alias: "s0" },
     { name: "x9",  alias: "s1" },
@@ -117,6 +123,7 @@ Click **Reset** to reload the program, then run it step by step again. With `i =
     {
       pc: "0x00400000",
       instruction: "addi s1 zero 10",
+      pseudoInstruction: "",
       values: ["", "0x0000000A", "", "", ""],
     },
   ]}
@@ -126,8 +133,8 @@ Click **Reset** to reload the program, then run it step by step again. With `i =
     { pc: "0x0040000C", instruction: "addi s4 zero 1",  values: ["", "", "", "", "0x00000001"] },
     { pc: "0x00400010", instruction: "bne s3 s4 Else",    values: ["", "", "", "", ""] },
     { pc: "0x00400014", instruction: "add s0 s1 s2",    values: ["0x0000001E", "", "", "", ""] },
-    { pc: "0x00400018", instruction: "j Exit",        values: ["", "", "", "", ""] },
-    { pc: "0x00400020", instruction: "nop",             values: ["", "", "", "", ""] },
+    { pc: "0x00400018", instruction: "jal x0 8", pseudoInstruction: "j Exit",  values: ["", "", "", "", ""] },
+    { pc: "0x00400020", instruction: "addi x0 x0 0", pseudoInstruction: "nop",        values: ["", "", "", "", ""] },
   ]}
   totalRows={7}
 />

@@ -56,6 +56,10 @@ main:
     nop                   # result in a0
 ```
 
+:::note
+The `j`, `jr`, and `nop` instructions are **pseudo-instructions**. For these rows, copy the **Basic** column value (the real instruction) into the **Instruction** column and the **Source** column value into the **Pseudo-instruction** column.
+:::
+
 ## Step-by-step Execution
 
 Run the program step by step using the **Run One Step** button. For each instruction, fill in the table below whenever a register or memory position is modified.
@@ -125,8 +129,8 @@ Run the program step by step using the **Run One Step** button. For each instruc
     { pc: "0x00400028", instruction: "lw t0 4(sp)",     values: ["", "", "", "", "", "", "", "0x00000002", "", "", "", "", ""] },
     { pc: "0x0040002C", instruction: "lw t1 8(sp)",     values: ["", "", "", "", "", "", "", "", "0x00000001", "", "", "", ""] },
     { pc: "0x00400030", instruction: "addi sp sp 12",   values: ["", "", "", "", "", "", "0x7FFFEFFC", "", "", "", "", "", ""] },
-    { pc: "0x00400034", instruction: "jr ra",    values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
-    { pc: "0x00400058", instruction: "nop",             values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400034", instruction: "jalr x0 x1 0", pseudoInstruction: "jr ra", values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
+    { pc: "0x00400058", instruction: "addi x0 x0 0", pseudoInstruction: "nop",    values: ["", "", "", "", "", "", "", "", "", "", "", "", ""] },
   ]}
   totalRows={12}
 />
