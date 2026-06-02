@@ -62,3 +62,13 @@ Acima do console existe uma **barra de redimensionamento** que permite ajustar o
 Essa barra pode ser arrastada verticalmente para aumentar ou reduzir o tamanho do console, permitindo adaptar a visualização conforme a necessidade do usuário.
 
 ![Barra de redimensionamento do console](../../assets/console/console-resize.png)
+
+---
+
+## Mensagens de Erro
+
+Quando ocorre um erro de montagem, o console exibe uma mensagem indicando a causa do problema e o **número da linha** no código-fonte onde o erro foi detectado.
+
+Isso permite localizar o erro rapidamente sem precisar inspecionar o programa inteiro.
+
+![Mensagem de erro no console](../../assets/console/console-error.png)

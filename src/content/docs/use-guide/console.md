@@ -63,3 +63,13 @@ Above the console there is a **resizing bar** that allows adjusting the space oc
 This bar can be dragged vertically to increase or decrease the size of the console, allowing the visualization to be adapted according to the user's needs.
 
 ![Console resizing bar](../assets/console/console-resize.png)
+
+---
+
+## Error Messages
+
+When an assembly error occurs, the console displays a message indicating the cause of the problem and the **line number** in the source code where the error was detected.
+
+This allows the error to be located quickly without needing to inspect the entire program.
+
+![Console error message](../assets/console/console-error.png)

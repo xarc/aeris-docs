@@ -3,8 +3,6 @@ title: Painel de Edição
 description: Área utilizada para escrever e editar programas em assembly RISC-V no simulador ÆRIS.
 ---
 
-## Painel de Edição
-
 O **painel de edição** é a área principal onde os programas em linguagem de montagem RISC-V são escritos e modificados.
 
 ![Painel de edição](../../assets/editor.png)
@@ -83,3 +81,13 @@ Esse recurso ajuda a:
 - escrever código de forma mais rápida
 - evitar erros de digitação em instruções e registradores
 - facilitar o aprendizado da sintaxe da linguagem
+
+---
+
+## Indicador de Erro de Montagem
+
+Quando o processo de montagem falha, o editor marca a linha exata que causou o erro com um sublinhado vermelho, permitindo identificar o problema diretamente no código sem precisar procurar manualmente.
+
+O número da linha do erro também é incluído na mensagem do console, de modo que tanto o editor quanto o console apontam para o mesmo local.
+
+![Indicador de erro no editor](../../assets/editor/editor-error.png)

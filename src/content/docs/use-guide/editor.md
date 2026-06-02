@@ -81,3 +81,13 @@ This feature helps to:
 - write code faster
 - avoid typing errors in instructions and registers
 - facilitate learning the language syntax
+
+---
+
+## Assembly Error Indicator
+
+When the assembly process fails, the editor marks the exact line that caused the error with a red underline, allowing the problem to be identified directly in the code without needing to search manually.
+
+The error line number is also included in the console message, so both the editor and the console point to the same location.
+
+![Editor error indicator](../assets/editor/editor-error.png)
