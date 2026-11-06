@@ -205,6 +205,50 @@ export default defineConfig({
           ],
         },
 
+        {
+          label: "Practical Roadmap",
+          translations: {
+            "pt-BR": "Roteiro Prático",
+          },
+          items: [
+            {
+              label: "Overview",
+              translations: { "pt-BR": "Visão Geral" },
+              link: "/roadmap/",
+            },
+            {
+              label: "Step 1",
+              translations: { "pt-BR": "Etapa 1" },
+              link: "/roadmap/step-1/",
+            },
+            {
+              label: "Step 2",
+              translations: { "pt-BR": "Etapa 2" },
+              link: "/roadmap/step-2/",
+            },
+            {
+              label: "Step 3",
+              translations: { "pt-BR": "Etapa 3" },
+              link: "/roadmap/step-3/",
+            },
+            {
+              label: "Step 4",
+              translations: { "pt-BR": "Etapa 4" },
+              link: "/roadmap/step-4/",
+            },
+            {
+              label: "Step 5",
+              translations: { "pt-BR": "Etapa 5" },
+              link: "/roadmap/step-5/",
+            },
+            {
+              label: "Step 6",
+              translations: { "pt-BR": "Etapa 6" },
+              link: "/roadmap/step-6/",
+            },
+          ],
+        },
+
         // {
         //   label: "Articles",
         //   translations: {
