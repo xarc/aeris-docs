@@ -1,0 +1,42 @@
+---
+title: Roteiro Prático
+description: Seis etapas que exploram o painel gráfico do ÆRIS, de acender um único píxel a um jogo da cobra completo.
+---
+
+O roteiro prático explora o painel gráfico do ÆRIS por meio de seis etapas de complexidade crescente, que vão de acender um único píxel até um jogo da cobra completo. Ele é organizado em três níveis. No Nível 1 (Etapas 1 e 2), o estudante escreve diretamente no framebuffer, endereçando os píxeis por E/S mapeada em memória. No Nível 2 (Etapas 3 a 5), incorpora laços, chamadas de sistema e a leitura do registrador de teclado. No Nível 3 (Etapa 6), integra os conceitos em uma aplicação completa.
+
+## Pré-requisitos
+
+- O **painel gráfico**, ativado por um botão do menu de opções
+- O **Modo Interativo**, um alternador no cabeçalho do painel, para as etapas que leem o teclado
+
+:::note
+Abra o painel gráfico **antes** de montar o código, porque alterná-lo depois da montagem reinicia a simulação.
+:::
+
+## Níveis e Etapas
+
+| Nível | Etapa | Conteúdo |
+|------|------|------|
+| Nível 1 - manipulação direta do framebuffer | [Etapa 1](/aeris-docs/pt/roadmap/step-1/) | Acender um único píxel |
+| Nível 1 - manipulação direta do framebuffer | [Etapa 2](/aeris-docs/pt/roadmap/step-2/) | Desenhar uma forma simples |
+| Nível 2 - controle de fluxo e entrada interativa | [Etapa 3](/aeris-docs/pt/roadmap/step-3/) | Mover um elemento automaticamente |
+| Nível 2 - controle de fluxo e entrada interativa | [Etapa 4](/aeris-docs/pt/roadmap/step-4/) | Mover um elemento com o teclado |
+| Nível 2 - controle de fluxo e entrada interativa | [Etapa 5](/aeris-docs/pt/roadmap/step-5/) | Controlar um corpo de 4 píxeis com o teclado |
+| Nível 3 - aplicação interativa completa | [Etapa 6](/aeris-docs/pt/roadmap/step-6/) | Aplicação interativa completa, um jogo da cobra |
+
+## O Painel Gráfico
+
+O painel gráfico é uma grade de **32 colunas por 18 linhas**, o que dá **576 píxeis**. Ele é ativado por um botão do menu de opções.
+
+| Item | Valor |
+|------|------|
+| Framebuffer | `0xFF000000` a `0xFF0008FF`, uma palavra de 32 bits por píxel |
+| Endereço do píxel | `0xFF000000 + (y * 32 + x) * 4` |
+| Formato da cor | `0x00RRGGBB`; o valor `0` é renderizado com a cor de fundo |
+| Registrador de teclado | `0xFF010000` |
+| Códigos das teclas de seta | 37 esquerda, 38 cima, 39 direita, 40 baixo |
+
+Um programa lê o código da última tecla no registrador de teclado e escreve `0` nele para consumir a tecla. As teclas pressionadas só são escritas no registrador enquanto o **Modo Interativo**, o alternador no cabeçalho do painel, está ativo.
+
+Duas chamadas de sistema ([`ecall`](/aeris-docs/pt/riscv/syscalls/)) são usadas ao longo do roteiro: `a7 = 10` encerra o programa e `a7 = 32` pausa pelo número de milissegundos em `a0`.
