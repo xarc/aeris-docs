@@ -1,0 +1,111 @@
+---
+title: Etapa 2
+description: Desenhar um traço horizontal de quatro píxeis no painel gráfico.
+---
+
+## Objetivo
+
+Desenhar um traço horizontal de quatro píxeis.
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V e ative o painel gráfico pelo botão do menu de opções.
+2. No editor de texto do simulador, transcreva o programa RISC-V abaixo, monte e execute.
+
+:::note
+Abra o painel gráfico **antes** de montar o código, porque alterná-lo depois da montagem reinicia a simulação.
+:::
+
+## Pseudocódigo
+
+O pseudocódigo abaixo é a referência de alto nível para o programa RISC-V da seção seguinte.
+
+```
+VARIAVEIS
+    y, x, linha_base, endereco_base, cor, temporaria, endereco: INTEIRO
+    memoria: VETOR DE INTEIRO
+
+INICIO
+
+y <- 8
+
+linha_base <- y * 32
+endereco_base <- 0xFF000000
+cor <- 0x0000F000
+
+x <- 14
+temporaria <- linha_base + x
+temporaria <- temporaria * 4
+endereco <- endereco_base + temporaria
+memoria[endereco] <- cor
+
+x <- 15
+temporaria <- linha_base + x
+temporaria <- temporaria * 4
+endereco <- endereco_base + temporaria
+memoria[endereco] <- cor
+
+x <- 16
+temporaria <- linha_base + x
+temporaria <- temporaria * 4
+endereco <- endereco_base + temporaria
+memoria[endereco] <- cor
+
+x <- 17
+temporaria <- linha_base + x
+temporaria <- temporaria * 4
+endereco <- endereco_base + temporaria
+memoria[endereco] <- cor
+
+FIM
+```
+
+## Programa RISC-V
+
+```asm
+.text
+main:
+    addi t0, zero, 8         # y = 8 (linha do traco)
+    slli t1, t0, 5           # t1 = y * 32 (linha_base - reutilizado em cada pixel)
+    lui  t2, 0xFF000         # t2 = 0xFF000000 (base do framebuffer)
+    lui  t3, 0xF             # t3 = 0x0000F000 (verde)
+
+    # pixel x = 14
+    addi t4, zero, 14
+    add  t5, t1, t4
+    slli t5, t5, 2
+    add  t5, t5, t2
+    sw   t3, 0(t5)
+
+    # pixel x = 15
+    addi t4, zero, 15
+    add  t5, t1, t4
+    slli t5, t5, 2
+    add  t5, t5, t2
+    sw   t3, 0(t5)
+
+    # pixel x = 16
+    addi t4, zero, 16
+    add  t5, t1, t4
+    slli t5, t5, 2
+    add  t5, t5, t2
+    sw   t3, 0(t5)
+
+    # pixel x = 17
+    addi t4, zero, 17
+    add  t5, t1, t4
+    slli t5, t5, 2
+    add  t5, t5, t2
+    sw   t3, 0(t5)
+
+    addi a7, zero, 10
+    ecall
+```
+
+:::note
+Este programa utiliza a instrução `ecall`. As chamadas de sistema suportadas pelo simulador estão listadas em [Syscalls](/aeris-docs/pt/riscv/syscalls/).
+:::
+
+## Explicação
+
+Como todos os píxeis estão na mesma linha, o cálculo de `y * 32` (`linha_base`) é feito uma única vez e reaproveitado em cada píxel. Para cada píxel, só o cálculo da coluna se repete. A cor `0x0000F000` é um verde levemente abaixo do máximo e pode ser carregada com uma única instrução `lui`, porque seus 12 bits menos significativos são zero.
