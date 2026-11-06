@@ -1,0 +1,176 @@
+---
+title: Step 4
+description: Move a pixel across the graphic panel with the arrow keys, by reading the keyboard register.
+---
+
+## Objective
+
+Move a pixel across the panel with the arrow keys, by reading the keyboard register.
+
+## Instructions
+
+1. Open the RISC-V simulator and turn on the graphic panel through the button in the options menu.
+2. Turn on **Interactive Mode**, the toggle in the panel header.
+3. Transcribe the RISC-V program below into the editor, assemble it and run it.
+
+:::note
+Open the graphic panel **before** assembling the code, because toggling it after assembling resets the simulation.
+:::
+
+## Pseudocode
+
+The pseudocode below is the high-level reference for the RISC-V program in the next section.
+
+```
+VARIABLES
+    keyboard_address, base_address, color, x, y, key: INTEGER
+    address, limit: INTEGER
+    memory: ARRAY OF INTEGER
+
+BEGIN
+
+keyboard_address <- 0xFF010000
+base_address <- 0xFF000000
+color <- 0x0000F000
+
+x <- 15         # initial column, center of the grid
+y <- 9          # initial row, center of the grid
+
+address <- y * 32
+address <- address + x
+address <- address * 4
+address <- address + base_address
+memory[address] <- color
+
+WHILE TRUE DO
+    key <- memory[keyboard_address]
+
+    IF key != 0 THEN
+        address <- y * 32
+        address <- address + x
+        address <- address * 4
+        address <- address + base_address
+        memory[address] <- 0
+
+        IF key == 37 THEN              # LEFT arrow
+            x <- x - 1
+            IF x < 0 THEN
+                x <- 31                 # wrapped around on the left
+            END-IF
+        END-IF
+
+        IF key == 39 THEN              # RIGHT arrow
+            x <- x + 1
+            limit <- 32
+            IF x >= limit THEN
+                x <- 0                  # wrapped around on the right
+            END-IF
+        END-IF
+
+        IF key == 38 THEN              # UP arrow
+            y <- y - 1
+            IF y < 0 THEN
+                y <- 17                 # wrapped around at the top
+            END-IF
+        END-IF
+
+        IF key == 40 THEN              # DOWN arrow
+            y <- y + 1
+            limit <- 18
+            IF y >= limit THEN
+                y <- 0                  # wrapped around at the bottom
+            END-IF
+        END-IF
+
+        address <- y * 32
+        address <- address + x
+        address <- address * 4
+        address <- address + base_address
+        memory[address] <- color
+
+        memory[keyboard_address] <- 0      # consumes the key
+    END-IF
+END-WHILE
+
+END
+```
+
+## RISC-V Program
+
+```asm
+.text
+main:
+    lui  t0, 0xFF010            # t0 = 0xFF010000 (keyboard register address)
+    lui  t1, 0xFF000            # t1 = 0xFF000000 (framebuffer base)
+    lui  t2, 0xF                # t2 = 0x0000F000 (green)
+
+    addi t3, zero, 15           # x = 15 (initial column, center of the grid)
+    addi t4, zero, 9            # y = 9 (initial row, center of the grid)
+
+    # draws the initial pixel, before any key
+    slli t6, t4, 5
+    add  t6, t6, t3
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   t2, 0(t6)
+
+loop:
+    lw   t5, 0(t0)              # reads the code of the pressed key
+    beq  t5, zero, loop         # no key yet, keeps waiting
+
+    # erases the pixel at the current position before moving
+    slli t6, t4, 5
+    add  t6, t6, t3
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   zero, 0(t6)
+
+    addi a0, zero, 37           # code of the LEFT arrow
+    beq  t5, a0, move_left
+    addi a0, zero, 38           # code of the UP arrow
+    beq  t5, a0, move_up
+    addi a0, zero, 39           # code of the RIGHT arrow
+    beq  t5, a0, move_right
+    addi a0, zero, 40           # code of the DOWN arrow
+    beq  t5, a0, move_down
+    jal  zero, redraw           # unknown key, keeps the position
+
+move_left:
+    addi t3, t3, -1
+    bge  t3, zero, redraw
+    addi t3, zero, 31           # wrapped around on the left
+    jal  zero, redraw
+
+move_right:
+    addi t3, t3, 1
+    addi a1, zero, 32
+    blt  t3, a1, redraw
+    addi t3, zero, 0            # wrapped around on the right
+    jal  zero, redraw
+
+move_up:
+    addi t4, t4, -1
+    bge  t4, zero, redraw
+    addi t4, zero, 17           # wrapped around at the top
+    jal  zero, redraw
+
+move_down:
+    addi t4, t4, 1
+    addi a1, zero, 18
+    blt  t4, a1, redraw
+    addi t4, zero, 0            # wrapped around at the bottom
+
+redraw:
+    slli t6, t4, 5
+    add  t6, t6, t3
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   t2, 0(t6)              # draws at the new position
+
+    sw   zero, 0(t0)            # consumes the key
+    jal  zero, loop
+```
+
+## Explanation
+
+With Interactive Mode active, the code of the pressed key is written to `0xFF010000`. The main loop keeps reading this register until it finds a value other than zero. On detecting a key, the program erases the current pixel, computes the new position according to the direction, going back through the opposite edge when needed, and redraws the pixel. Finally, the program writes zero to the register, signalling that the event was consumed.
