@@ -1,0 +1,236 @@
+---
+title: Step 5
+description: Control a body of four pixels, which moves as a chain on each arrow key.
+---
+
+## Objective
+
+Control a body of four pixels, which moves as a chain on each arrow key.
+
+## Instructions
+
+1. Open the RISC-V simulator and turn on the graphic panel through the button in the options menu.
+2. Turn on **Interactive Mode**, the toggle in the panel header.
+3. Transcribe the RISC-V program below into the editor, assemble it and run it.
+
+:::note
+Open the graphic panel **before** assembling the code, because toggling it after assembling resets the simulation.
+:::
+
+## Pseudocode
+
+The pseudocode below is the high-level reference for the RISC-V program in the next section.
+
+```
+VARIABLES
+    keyboard_address, base_address, color, key: INTEGER
+    head_x, head_y, segment1_x, segment1_y: INTEGER
+    segment2_x, segment2_y, tail_x, tail_y: INTEGER
+    new_x, new_y, address, x, limit: INTEGER
+    memory: ARRAY OF INTEGER
+
+BEGIN
+
+keyboard_address <- 0xFF010000
+base_address <- 0xFF000000
+color <- 0x0000F000
+
+x <- 12
+limit <- 16
+WHILE x < limit DO
+    address <- 9 * 32
+    address <- address + x
+    address <- address * 4
+    address <- address + base_address
+    memory[address] <- color
+    x <- x + 1
+END-WHILE
+
+head_x <- 15
+head_y <- 9
+segment1_x <- 14
+segment1_y <- 9
+segment2_x <- 13
+segment2_y <- 9
+tail_x <- 12
+tail_y <- 9
+
+WHILE TRUE DO
+    key <- memory[keyboard_address]
+
+    IF key != 0 THEN
+        new_x <- head_x
+        new_y <- head_y
+
+        IF key == 38 THEN               # UP arrow
+            new_y <- new_y - 1
+            IF new_y < 0 THEN
+                new_y <- 17
+            END-IF
+        END-IF
+
+        IF key == 40 THEN               # DOWN arrow
+            new_y <- new_y + 1
+            IF new_y >= 18 THEN
+                new_y <- 0
+            END-IF
+        END-IF
+
+        IF key == 37 THEN               # LEFT arrow
+            new_x <- new_x - 1
+            IF new_x < 0 THEN
+                new_x <- 31
+            END-IF
+        END-IF
+
+        IF key == 39 THEN               # RIGHT arrow
+            new_x <- new_x + 1
+            IF new_x >= 32 THEN
+                new_x <- 0
+            END-IF
+        END-IF
+
+        IF new_x != segment1_x OR new_y != segment1_y THEN
+            address <- tail_y * 32
+            address <- address + tail_x
+            address <- address * 4
+            address <- address + base_address
+            memory[address] <- 0
+
+            tail_x <- segment2_x
+            tail_y <- segment2_y
+            segment2_x <- segment1_x
+            segment2_y <- segment1_y
+            segment1_x <- head_x
+            segment1_y <- head_y
+            head_x <- new_x
+            head_y <- new_y
+
+            address <- head_y * 32
+            address <- address + head_x
+            address <- address * 4
+            address <- address + base_address
+            memory[address] <- color
+        END-IF
+
+        memory[keyboard_address] <- 0
+    END-IF
+END-WHILE
+
+END
+```
+
+## RISC-V Program
+
+```asm
+.text
+main:
+    lui  t0, 0xFF010           # t0 = 0xFF010000 (keyboard register address)
+    lui  t1, 0xFF000           # t1 = 0xFF000000 (framebuffer base)
+    lui  t2, 0xF               # t2 = 0x0000F000 (green)
+
+    # draws the initial body: columns 12 to 15, row 9
+    addi t4, zero, 9           # y = 9 (constant for the initial body)
+    slli s9, t4, 5             # s9 = y * 32, reused in the loop
+    addi t4, zero, 12          # x = 12 (initial column)
+    addi a0, zero, 16          # loop limit (x < 16)
+draw_initial:
+    add  t6, s9, t4
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   t2, 0(t6)
+    addi t4, t4, 1
+    blt  t4, a0, draw_initial
+
+    addi s1, zero, 15          # head: x
+    addi s2, zero, 9           # head: y
+    addi s3, zero, 14          # segment 1: x
+    addi s4, zero, 9           # segment 1: y
+    addi s5, zero, 13          # segment 2: x
+    addi s6, zero, 9           # segment 2: y
+    addi s7, zero, 12          # tail: x
+    addi s8, zero, 9           # tail: y
+
+loop:
+    lw   t3, 0(t0)             # reads the code of the pressed key
+    beq  t3, zero, loop        # no key yet, keeps waiting
+
+    # computes the new head position, according to the pressed key
+    addi t4, s1, 0             # t4 = new x (starts from the current head)
+    addi t5, s2, 0             # t5 = new y (starts from the current head)
+
+    addi a0, zero, 38          # UP arrow
+    beq  t3, a0, dir_up
+    addi a0, zero, 40          # DOWN arrow
+    beq  t3, a0, dir_down
+    addi a0, zero, 37          # LEFT arrow
+    beq  t3, a0, dir_left
+    addi a0, zero, 39          # RIGHT arrow
+    beq  t3, a0, dir_right
+    jal  zero, consume_key     # unknown key, does not move
+
+dir_up:
+    addi t5, t5, -1
+    bge  t5, zero, head_ready
+    addi t5, zero, 17
+    jal  zero, head_ready
+
+dir_down:
+    addi t5, t5, 1
+    addi a1, zero, 18
+    blt  t5, a1, head_ready
+    addi t5, zero, 0
+    jal  zero, head_ready
+
+dir_left:
+    addi t4, t4, -1
+    bge  t4, zero, head_ready
+    addi t4, zero, 31
+    jal  zero, head_ready
+
+dir_right:
+    addi t4, t4, 1
+    addi a1, zero, 32
+    blt  t4, a1, head_ready
+    addi t4, zero, 0
+
+head_ready:
+    bne  t4, s3, no_reversal      # if the new column differs from the column of segment 1, goes on
+    bne  t5, s4, no_reversal      # if the new row differs from the row of segment 1, goes on
+    jal  zero, consume_key        # head and segment 1 coincide, ignores the movement
+
+no_reversal:
+    # erases the pixel of the current tail, before shifting the body
+    slli t6, s8, 5
+    add  t6, t6, s7
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   zero, 0(t6)
+
+    # shifts the body: tail <- segment2, segment2 <- segment1, segment1 <- old head
+    addi s7, s5, 0
+    addi s8, s6, 0
+    addi s5, s3, 0
+    addi s6, s4, 0
+    addi s3, s1, 0
+    addi s4, s2, 0
+
+    # the head takes the new computed position
+    addi s1, t4, 0
+    addi s2, t5, 0
+
+    # draws the new head
+    slli t6, s2, 5
+    add  t6, t6, s1
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   t2, 0(t6)
+
+consume_key:
+    sw   zero, 0(t0)             # consumes the key
+    jal  zero, loop
+```
+
+## Explanation
+
+The body is made of four positions, the head, two segments and the tail, kept in registers. On each key, the tail is erased, each position takes the one of the previous segment and the head receives the new position. If the key points in the direction opposite to the previous movement, the new position of the head would coincide with that of the first segment, and two segments would occupy the same pixel. For this reason, the program compares the two positions before shifting the body and, if they are equal, ignores the key.
