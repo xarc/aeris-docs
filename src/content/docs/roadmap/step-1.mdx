@@ -1,0 +1,77 @@
+---
+title: Step 1
+description: Light a single pixel of the graphic panel, changing its color through a direct write to the framebuffer.
+---
+
+## Objective
+
+Light a single pixel of the graphic panel, changing its color through a direct write to the framebuffer.
+
+## Instructions
+
+1. Open the RISC-V simulator and turn on the graphic panel through the button in the options menu.
+2. Transcribe the RISC-V program below into the editor, assemble it and run it.
+
+:::note
+Open the graphic panel **before** assembling the code, because toggling it after assembling resets the simulation.
+:::
+
+## Pseudocode
+
+The pseudocode below is the high-level reference for the RISC-V program in the next section.
+
+```
+VARIABLES
+    x, y, temporary, address: INTEGER
+    memory: ARRAY OF INTEGER
+
+BEGIN
+
+x <- 5      # column
+y <- 3      # row
+
+temporary <- y * 32
+temporary <- temporary + x
+temporary <- temporary * 4
+
+address <- 0xFF000000 + temporary
+
+memory[address] <- 0x00FF0000
+
+END
+```
+
+## RISC-V Program
+
+```asm
+.text
+main:
+    # pixel coordinates
+    addi t0, zero, 5       # x = 5 (column)
+    addi t1, zero, 3       # y = 3 (row)
+
+    # offset = (y * 32 + x) * 4
+    slli t2, t1, 5         # t2 = y * 32 (32 = 2^5)
+    add  t2, t2, t0        # t2 = y * 32 + x
+    slli t2, t2, 2         # t2 = (y * 32 + x) * 4
+
+    # final address = framebuffer base + offset
+    lui  t3, 0xFF000
+    add  t3, t3, t2
+
+    # red color
+    lui  t4, 0xFF0         # t4 = 0xFF0 << 12 = 0x00FF0000
+
+    sw   t4, 0(t3)
+
+    addi a7, zero, 10
+    ecall
+```
+
+:::note
+This program uses the `ecall` instruction. The system calls supported by the simulator are listed in [Syscalls](/aeris-docs/riscv/syscalls/).
+:::
+
+## Explanation
+
+The program computes the pixel offset from its coordinates and writes the color to the corresponding address, which is the same address the panel observes in order to render the color. The formula is address = 0xFF000000 + (y * 32 + x) * 4. Since RV32I has no multiplication instruction, the multiplications by 32 and by 4, both powers of two, are done with bit shifts (`slli`). The program has three parts: loading the coordinates into registers, computing the offset and adding it to the framebuffer base address, and writing the color with `sw`. The last two instructions, `addi a7, zero, 10` and [`ecall`](/aeris-docs/riscv/syscalls/), end the program: `ecall` requests a service from the simulator, and `a7` states which service is requested, 10 being the exit code.
