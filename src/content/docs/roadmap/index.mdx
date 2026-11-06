@@ -1,0 +1,42 @@
+---
+title: Practical Roadmap
+description: Six steps that explore the ÆRIS graphic panel, from lighting a single pixel to a complete Snake game.
+---
+
+The practical roadmap explores the ÆRIS graphic panel through six steps of increasing complexity, which go from lighting a single pixel to a complete Snake game. It is organized into three levels. In Level 1 (Steps 1 and 2), the student writes directly to the framebuffer, addressing the pixels through memory-mapped I/O. In Level 2 (Steps 3 to 5), loops, system calls and reading the keyboard register are incorporated. In Level 3 (Step 6), the concepts are integrated into a complete application.
+
+## Prerequisites
+
+- The **graphic panel**, toggled by a button in the options menu
+- **Interactive Mode**, a toggle in the panel header, for the steps that read the keyboard
+
+:::note
+Open the graphic panel **before** assembling the code, because toggling it after assembling resets the simulation.
+:::
+
+## Levels and Steps
+
+| Level | Step | Content |
+|------|------|------|
+| Level 1 - direct framebuffer manipulation | [Step 1](/aeris-docs/roadmap/step-1/) | Light a single pixel |
+| Level 1 - direct framebuffer manipulation | [Step 2](/aeris-docs/roadmap/step-2/) | Draw a simple shape |
+| Level 2 - control flow and interactive input | [Step 3](/aeris-docs/roadmap/step-3/) | Move an element automatically |
+| Level 2 - control flow and interactive input | [Step 4](/aeris-docs/roadmap/step-4/) | Move an element with the keyboard |
+| Level 2 - control flow and interactive input | [Step 5](/aeris-docs/roadmap/step-5/) | Control a 4-pixel body with the keyboard |
+| Level 3 - complete interactive application | [Step 6](/aeris-docs/roadmap/step-6/) | Complete interactive application, a Snake game |
+
+## The Graphic Panel
+
+The graphic panel is a grid of **32 columns by 18 rows**, which gives **576 pixels**. It is toggled by a button in the options menu.
+
+| Item | Value |
+|------|------|
+| Framebuffer | `0xFF000000` to `0xFF0008FF`, one 32-bit word per pixel |
+| Pixel address | `0xFF000000 + (y * 32 + x) * 4` |
+| Color format | `0x00RRGGBB`; the value `0` renders as the background color |
+| Keyboard register | `0xFF010000` |
+| Arrow key codes | 37 left, 38 up, 39 right, 40 down |
+
+A program reads the code of the last key from the keyboard register and writes `0` to it to consume the key. Key presses are only written to the register while **Interactive Mode**, the toggle in the panel header, is active.
+
+Two system calls ([`ecall`](/aeris-docs/riscv/syscalls/)) are used along the roadmap: `a7 = 10` exits the program and `a7 = 32` sleeps for the number of milliseconds in `a0`.
