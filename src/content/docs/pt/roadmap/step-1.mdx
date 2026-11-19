@@ -1,0 +1,77 @@
+---
+title: Etapa 1
+description: Acender um único píxel do painel gráfico, alterando sua cor por meio de uma escrita direta no framebuffer.
+---
+
+## Objetivo
+
+Acender um único píxel do painel gráfico, alterando sua cor por meio de uma escrita direta no framebuffer.
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V e ative o painel gráfico pelo botão do menu de opções.
+2. No editor de texto do simulador, transcreva o programa RISC-V abaixo, monte e execute.
+
+:::note
+Abra o painel gráfico **antes** de montar o código, porque alterná-lo depois da montagem reinicia a simulação.
+:::
+
+## Pseudocódigo
+
+O pseudocódigo abaixo é a referência de alto nível para o programa RISC-V da seção seguinte.
+
+```
+VARIAVEIS
+    x, y, temporaria, endereco: INTEIRO
+    memoria: VETOR DE INTEIRO
+
+INICIO
+
+x <- 5      # coluna
+y <- 3      # linha
+
+temporaria <- y * 32
+temporaria <- temporaria + x
+temporaria <- temporaria * 4
+
+endereco <- 0xFF000000 + temporaria
+
+memoria[endereco] <- 0x00FF0000
+
+FIM
+```
+
+## Programa RISC-V
+
+```asm
+.text
+main:
+    # coordenadas do pixel
+    addi t0, zero, 5       # x = 5 (coluna)
+    addi t1, zero, 3       # y = 3 (linha)
+
+    # offset = (y * 32 + x) * 4
+    slli t2, t1, 5         # t2 = y * 32 (32 = 2^5)
+    add  t2, t2, t0        # t2 = y * 32 + x
+    slli t2, t2, 2         # t2 = (y * 32 + x) * 4
+
+    # endereco final = base do framebuffer + offset
+    lui  t3, 0xFF000
+    add  t3, t3, t2
+
+    # cor vermelha
+    lui  t4, 0xFF0         # t4 = 0xFF0 << 12 = 0x00FF0000
+
+    sw   t4, 0(t3)
+
+    addi a7, zero, 10
+    ecall
+```
+
+:::note
+Este programa utiliza a instrução `ecall`. As chamadas de sistema suportadas pelo simulador estão listadas em [Syscalls](/aeris-docs/pt/riscv/syscalls/).
+:::
+
+## Explicação
+
+O programa calcula o deslocamento do píxel a partir de suas coordenadas e escreve a cor no endereço correspondente, que é o mesmo endereço que o painel observa para renderizar a cor. A fórmula é endereço = 0xFF000000 + (y * 32 + x) * 4. Como o RV32I não possui instrução de multiplicação, as multiplicações por 32 e por 4, ambas potências de dois, são feitas com deslocamentos de bits (`slli`). O programa tem três partes: carregar as coordenadas em registradores, calcular o deslocamento e somá-lo ao endereço base do framebuffer, e escrever a cor com `sw`. As duas últimas instruções, `addi a7, zero, 10` e [`ecall`](/aeris-docs/pt/riscv/syscalls/), encerram o programa: `ecall` solicita um serviço ao simulador, e `a7` informa qual serviço é pedido, sendo 10 o código de encerramento.

@@ -1,0 +1,111 @@
+---
+title: Step 2
+description: Draw a horizontal line of four pixels on the graphic panel.
+---
+
+## Objective
+
+Draw a horizontal line of four pixels.
+
+## Instructions
+
+1. Open the RISC-V simulator and turn on the graphic panel through the button in the options menu.
+2. Transcribe the RISC-V program below into the editor, assemble it and run it.
+
+:::note
+Open the graphic panel **before** assembling the code, because toggling it after assembling resets the simulation.
+:::
+
+## Pseudocode
+
+The pseudocode below is the high-level reference for the RISC-V program in the next section.
+
+```
+VARIABLES
+    y, x, row_base, base_address, color, temporary, address: INTEGER
+    memory: ARRAY OF INTEGER
+
+BEGIN
+
+y <- 8
+
+row_base <- y * 32
+base_address <- 0xFF000000
+color <- 0x0000F000
+
+x <- 14
+temporary <- row_base + x
+temporary <- temporary * 4
+address <- base_address + temporary
+memory[address] <- color
+
+x <- 15
+temporary <- row_base + x
+temporary <- temporary * 4
+address <- base_address + temporary
+memory[address] <- color
+
+x <- 16
+temporary <- row_base + x
+temporary <- temporary * 4
+address <- base_address + temporary
+memory[address] <- color
+
+x <- 17
+temporary <- row_base + x
+temporary <- temporary * 4
+address <- base_address + temporary
+memory[address] <- color
+
+END
+```
+
+## RISC-V Program
+
+```asm
+.text
+main:
+    addi t0, zero, 8         # y = 8 (row of the line)
+    slli t1, t0, 5           # t1 = y * 32 (row_base - reused for each pixel)
+    lui  t2, 0xFF000         # t2 = 0xFF000000 (framebuffer base)
+    lui  t3, 0xF             # t3 = 0x0000F000 (green)
+
+    # pixel x = 14
+    addi t4, zero, 14
+    add  t5, t1, t4
+    slli t5, t5, 2
+    add  t5, t5, t2
+    sw   t3, 0(t5)
+
+    # pixel x = 15
+    addi t4, zero, 15
+    add  t5, t1, t4
+    slli t5, t5, 2
+    add  t5, t5, t2
+    sw   t3, 0(t5)
+
+    # pixel x = 16
+    addi t4, zero, 16
+    add  t5, t1, t4
+    slli t5, t5, 2
+    add  t5, t5, t2
+    sw   t3, 0(t5)
+
+    # pixel x = 17
+    addi t4, zero, 17
+    add  t5, t1, t4
+    slli t5, t5, 2
+    add  t5, t5, t2
+    sw   t3, 0(t5)
+
+    addi a7, zero, 10
+    ecall
+```
+
+:::note
+This program uses the `ecall` instruction. The system calls supported by the simulator are listed in [Syscalls](/aeris-docs/riscv/syscalls/).
+:::
+
+## Explanation
+
+Since all the pixels are on the same row, the `y * 32` calculation (`row_base`) is done only once and reused for each pixel. For each pixel, only the column calculation is repeated. The color `0x0000F000` is a green slightly below the maximum and can be loaded with a single `lui` instruction, because its 12 least significant bits are zero.

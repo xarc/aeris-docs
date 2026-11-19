@@ -1,0 +1,176 @@
+---
+title: Etapa 4
+description: Mover um píxel pelo painel gráfico com as teclas de seta, lendo o registrador de teclado.
+---
+
+## Objetivo
+
+Mover um píxel pelo painel com as teclas de seta, lendo o registrador de teclado.
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V e ative o painel gráfico pelo botão do menu de opções.
+2. Ative o **Modo Interativo**, o alternador no cabeçalho do painel.
+3. No editor de texto do simulador, transcreva o programa RISC-V abaixo, monte e execute.
+
+:::note
+Abra o painel gráfico **antes** de montar o código, porque alterná-lo depois da montagem reinicia a simulação.
+:::
+
+## Pseudocódigo
+
+O pseudocódigo abaixo é a referência de alto nível para o programa RISC-V da seção seguinte.
+
+```
+VARIAVEIS
+    endereco_teclado, endereco_base, cor, x, y, tecla: INTEIRO
+    endereco, limite: INTEIRO
+    memoria: VETOR DE INTEIRO
+
+INICIO
+
+endereco_teclado <- 0xFF010000
+endereco_base <- 0xFF000000
+cor <- 0x0000F000
+
+x <- 15         # coluna inicial, centro do grid
+y <- 9          # linha inicial, centro do grid
+
+endereco <- y * 32
+endereco <- endereco + x
+endereco <- endereco * 4
+endereco <- endereco + endereco_base
+memoria[endereco] <- cor
+
+ENQUANTO VERDADEIRO FACA
+    tecla <- memoria[endereco_teclado]
+
+    SE tecla != 0 ENTAO
+        endereco <- y * 32
+        endereco <- endereco + x
+        endereco <- endereco * 4
+        endereco <- endereco + endereco_base
+        memoria[endereco] <- 0
+
+        SE tecla == 37 ENTAO            # seta ESQUERDA
+            x <- x - 1
+            SE x < 0 ENTAO
+                x <- 31                 # deu a volta pela esquerda
+            FIM-SE
+        FIM-SE
+
+        SE tecla == 39 ENTAO            # seta DIREITA
+            x <- x + 1
+            limite <- 32
+            SE x >= limite ENTAO
+                x <- 0                  # deu a volta pela direita
+            FIM-SE
+        FIM-SE
+
+        SE tecla == 38 ENTAO            # seta CIMA
+            y <- y - 1
+            SE y < 0 ENTAO
+                y <- 17                 # deu a volta por cima
+            FIM-SE
+        FIM-SE
+
+        SE tecla == 40 ENTAO            # seta BAIXO
+            y <- y + 1
+            limite <- 18
+            SE y >= limite ENTAO
+                y <- 0                  # deu a volta por baixo
+            FIM-SE
+        FIM-SE
+
+        endereco <- y * 32
+        endereco <- endereco + x
+        endereco <- endereco * 4
+        endereco <- endereco + endereco_base
+        memoria[endereco] <- cor
+
+        memoria[endereco_teclado] <- 0     # consome a tecla
+    FIM-SE
+FIM-ENQUANTO
+
+FIM
+```
+
+## Programa RISC-V
+
+```asm
+.text
+main:
+    lui  t0, 0xFF010            # t0 = 0xFF010000 (endereco do registrador de teclado)
+    lui  t1, 0xFF000            # t1 = 0xFF000000 (base do framebuffer)
+    lui  t2, 0xF                # t2 = 0x0000F000 (cor verde)
+
+    addi t3, zero, 15           # x = 15 (coluna inicial, centro do grid)
+    addi t4, zero, 9            # y = 9 (linha inicial, centro do grid)
+
+    # desenha o pixel inicial, antes de qualquer tecla
+    slli t6, t4, 5
+    add  t6, t6, t3
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   t2, 0(t6)
+
+loop:
+    lw   t5, 0(t0)              # le o codigo da tecla pressionada
+    beq  t5, zero, loop         # nenhuma tecla ainda, continua esperando
+
+    # apaga o pixel na posicao atual antes de mover
+    slli t6, t4, 5
+    add  t6, t6, t3
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   zero, 0(t6)
+
+    addi a0, zero, 37           # codigo da seta ESQUERDA
+    beq  t5, a0, move_left
+    addi a0, zero, 38           # codigo da seta CIMA
+    beq  t5, a0, move_up
+    addi a0, zero, 39           # codigo da seta DIREITA
+    beq  t5, a0, move_right
+    addi a0, zero, 40           # codigo da seta BAIXO
+    beq  t5, a0, move_down
+    jal  zero, redraw           # tecla desconhecida, mantem posicao
+
+move_left:
+    addi t3, t3, -1
+    bge  t3, zero, redraw
+    addi t3, zero, 31           # deu a volta pela esquerda
+    jal  zero, redraw
+
+move_right:
+    addi t3, t3, 1
+    addi a1, zero, 32
+    blt  t3, a1, redraw
+    addi t3, zero, 0            # deu a volta pela direita
+    jal  zero, redraw
+
+move_up:
+    addi t4, t4, -1
+    bge  t4, zero, redraw
+    addi t4, zero, 17           # deu a volta por cima
+    jal  zero, redraw
+
+move_down:
+    addi t4, t4, 1
+    addi a1, zero, 18
+    blt  t4, a1, redraw
+    addi t4, zero, 0            # deu a volta por baixo
+
+redraw:
+    slli t6, t4, 5
+    add  t6, t6, t3
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   t2, 0(t6)              # desenha na nova posicao
+
+    sw   zero, 0(t0)            # consome a tecla
+    jal  zero, loop
+```
+
+## Explicação
+
+Com o Modo Interativo ativo, o código da tecla pressionada é escrito em `0xFF010000`. O laço principal fica lendo esse registrador até encontrar um valor diferente de zero. Ao detectar uma tecla, o programa apaga o píxel atual, calcula a nova posição de acordo com a direção, voltando pela borda oposta quando necessário, e redesenha o píxel. Por fim, o programa escreve zero no registrador, sinalizando que o evento foi consumido.

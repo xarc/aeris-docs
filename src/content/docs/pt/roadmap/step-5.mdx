@@ -1,0 +1,236 @@
+---
+title: Etapa 5
+description: Controlar um corpo de quatro píxeis, que se desloca em cadeia a cada tecla de seta.
+---
+
+## Objetivo
+
+Controlar um corpo de quatro píxeis, que se desloca em cadeia a cada tecla de seta.
+
+## Instruções
+
+1. Abra o simulador de linguagem RISC-V e ative o painel gráfico pelo botão do menu de opções.
+2. Ative o **Modo Interativo**, o alternador no cabeçalho do painel.
+3. No editor de texto do simulador, transcreva o programa RISC-V abaixo, monte e execute.
+
+:::note
+Abra o painel gráfico **antes** de montar o código, porque alterná-lo depois da montagem reinicia a simulação.
+:::
+
+## Pseudocódigo
+
+O pseudocódigo abaixo é a referência de alto nível para o programa RISC-V da seção seguinte.
+
+```
+VARIAVEIS
+    endereco_teclado, endereco_base, cor, tecla: INTEIRO
+    cabeca_x, cabeca_y, segmento1_x, segmento1_y: INTEIRO
+    segmento2_x, segmento2_y, cauda_x, cauda_y: INTEIRO
+    nova_x, nova_y, endereco, x, limite: INTEIRO
+    memoria: VETOR DE INTEIRO
+
+INICIO
+
+endereco_teclado <- 0xFF010000
+endereco_base <- 0xFF000000
+cor <- 0x0000F000
+
+x <- 12
+limite <- 16
+ENQUANTO x < limite FACA
+    endereco <- 9 * 32
+    endereco <- endereco + x
+    endereco <- endereco * 4
+    endereco <- endereco + endereco_base
+    memoria[endereco] <- cor
+    x <- x + 1
+FIM-ENQUANTO
+
+cabeca_x <- 15
+cabeca_y <- 9
+segmento1_x <- 14
+segmento1_y <- 9
+segmento2_x <- 13
+segmento2_y <- 9
+cauda_x <- 12
+cauda_y <- 9
+
+ENQUANTO VERDADEIRO FACA
+    tecla <- memoria[endereco_teclado]
+
+    SE tecla != 0 ENTAO
+        nova_x <- cabeca_x
+        nova_y <- cabeca_y
+
+        SE tecla == 38 ENTAO            # seta CIMA
+            nova_y <- nova_y - 1
+            SE nova_y < 0 ENTAO
+                nova_y <- 17
+            FIM-SE
+        FIM-SE
+
+        SE tecla == 40 ENTAO            # seta BAIXO
+            nova_y <- nova_y + 1
+            SE nova_y >= 18 ENTAO
+                nova_y <- 0
+            FIM-SE
+        FIM-SE
+
+        SE tecla == 37 ENTAO            # seta ESQUERDA
+            nova_x <- nova_x - 1
+            SE nova_x < 0 ENTAO
+                nova_x <- 31
+            FIM-SE
+        FIM-SE
+
+        SE tecla == 39 ENTAO            # seta DIREITA
+            nova_x <- nova_x + 1
+            SE nova_x >= 32 ENTAO
+                nova_x <- 0
+            FIM-SE
+        FIM-SE
+
+        SE nova_x != segmento1_x OU nova_y != segmento1_y ENTAO
+            endereco <- cauda_y * 32
+            endereco <- endereco + cauda_x
+            endereco <- endereco * 4
+            endereco <- endereco + endereco_base
+            memoria[endereco] <- 0
+
+            cauda_x <- segmento2_x
+            cauda_y <- segmento2_y
+            segmento2_x <- segmento1_x
+            segmento2_y <- segmento1_y
+            segmento1_x <- cabeca_x
+            segmento1_y <- cabeca_y
+            cabeca_x <- nova_x
+            cabeca_y <- nova_y
+
+            endereco <- cabeca_y * 32
+            endereco <- endereco + cabeca_x
+            endereco <- endereco * 4
+            endereco <- endereco + endereco_base
+            memoria[endereco] <- cor
+        FIM-SE
+
+        memoria[endereco_teclado] <- 0
+    FIM-SE
+FIM-ENQUANTO
+
+FIM
+```
+
+## Programa RISC-V
+
+```asm
+.text
+main:
+    lui  t0, 0xFF010           # t0 = 0xFF010000 (endereco do registrador de teclado)
+    lui  t1, 0xFF000           # t1 = 0xFF000000 (base do framebuffer)
+    lui  t2, 0xF               # t2 = 0x0000F000 (cor verde)
+
+    # desenha o corpo inicial: colunas 12 a 15, linha 9
+    addi t4, zero, 9           # y = 9 (constante para o corpo inicial)
+    slli s9, t4, 5             # s9 = y * 32, reutilizado no laco
+    addi t4, zero, 12          # x = 12 (coluna inicial)
+    addi a0, zero, 16          # limite do laco (x < 16)
+draw_initial:
+    add  t6, s9, t4
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   t2, 0(t6)
+    addi t4, t4, 1
+    blt  t4, a0, draw_initial
+
+    addi s1, zero, 15          # cabeca: x
+    addi s2, zero, 9           # cabeca: y
+    addi s3, zero, 14          # segmento 1: x
+    addi s4, zero, 9           # segmento 1: y
+    addi s5, zero, 13          # segmento 2: x
+    addi s6, zero, 9           # segmento 2: y
+    addi s7, zero, 12          # cauda: x
+    addi s8, zero, 9           # cauda: y
+
+loop:
+    lw   t3, 0(t0)             # le o codigo da tecla pressionada
+    beq  t3, zero, loop        # nenhuma tecla ainda, continua esperando
+
+    # calcula a nova posicao da cabeca, de acordo com a tecla pressionada
+    addi t4, s1, 0             # t4 = novo x (parte da cabeca atual)
+    addi t5, s2, 0             # t5 = novo y (parte da cabeca atual)
+
+    addi a0, zero, 38          # seta CIMA
+    beq  t3, a0, dir_up
+    addi a0, zero, 40          # seta BAIXO
+    beq  t3, a0, dir_down
+    addi a0, zero, 37          # seta ESQUERDA
+    beq  t3, a0, dir_left
+    addi a0, zero, 39          # seta DIREITA
+    beq  t3, a0, dir_right
+    jal  zero, consume_key     # tecla desconhecida, nao move
+
+dir_up:
+    addi t5, t5, -1
+    bge  t5, zero, head_ready
+    addi t5, zero, 17
+    jal  zero, head_ready
+
+dir_down:
+    addi t5, t5, 1
+    addi a1, zero, 18
+    blt  t5, a1, head_ready
+    addi t5, zero, 0
+    jal  zero, head_ready
+
+dir_left:
+    addi t4, t4, -1
+    bge  t4, zero, head_ready
+    addi t4, zero, 31
+    jal  zero, head_ready
+
+dir_right:
+    addi t4, t4, 1
+    addi a1, zero, 32
+    blt  t4, a1, head_ready
+    addi t4, zero, 0
+
+head_ready:
+    bne  t4, s3, no_reversal      # se a nova coluna difere da coluna do segmento 1, segue
+    bne  t5, s4, no_reversal      # se a nova linha difere da linha do segmento 1, segue
+    jal  zero, consume_key        # cabeca e segmento 1 coincidem, ignora o movimento
+
+no_reversal:
+    # apaga o pixel da cauda atual, antes de deslocar o corpo
+    slli t6, s8, 5
+    add  t6, t6, s7
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   zero, 0(t6)
+
+    # desloca o corpo: cauda <- segmento2, segmento2 <- segmento1, segmento1 <- cabeca antiga
+    addi s7, s5, 0
+    addi s8, s6, 0
+    addi s5, s3, 0
+    addi s6, s4, 0
+    addi s3, s1, 0
+    addi s4, s2, 0
+
+    # a cabeca assume a nova posicao calculada
+    addi s1, t4, 0
+    addi s2, t5, 0
+
+    # desenha a nova cabeca
+    slli t6, s2, 5
+    add  t6, t6, s1
+    slli t6, t6, 2
+    add  t6, t6, t1
+    sw   t2, 0(t6)
+
+consume_key:
+    sw   zero, 0(t0)             # consome a tecla
+    jal  zero, loop
+```
+
+## Explicação
+
+O corpo é formado por quatro posições, a cabeça, dois segmentos e a cauda, guardadas em registradores. A cada tecla, a cauda é apagada, cada posição assume a do segmento anterior e a cabeça recebe a nova posição. Se a tecla aponta para o sentido oposto ao movimento anterior, a nova posição da cabeça coincidiria com a do primeiro segmento, e dois segmentos ocupariam o mesmo píxel. Por isso, o programa compara as duas posições antes de deslocar o corpo e, se forem iguais, ignora a tecla.
